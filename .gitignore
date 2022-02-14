@@ -1,0 +1,8 @@
+.DS_Store
+tables/thermodynamic/average_thermodynamic_quantities.dat
+src/cpp/obj
+src/cpp/obj/*
+iS3D.e
+results/
+src/iS3D.e
+src/cpp/iS3D.e

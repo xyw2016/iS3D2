@@ -175,6 +175,12 @@ class FO_data_reader
         int dimension;              // dimension of freezeout surface
         int include_baryon;         // switch to include baryon chemical potential
         int number_of_cells;        // number of freezeout cells in freezeout surface file
+        bool fo_binary;
+        bool only_use_partial_surface;
+        double partial_surface_etas_min;
+        double partial_surface_etas_max;
+        double partial_surface_tau_min;
+        double partial_surface_tau_max;
 
     public:
         FO_data_reader(ParameterReader * paraRdr_in, string pathToInput);
@@ -186,6 +192,7 @@ class FO_data_reader
         void read_surface_cpu_vh(FO_surf * surf_ptr);       // 1 (or 5 to include thermal vorticity)
         void read_surface_music(FO_surf* surf_ptr);         // 6
         void read_surface_hic_eventgen(FO_surf* surf_ptr);  // 7
+        void read_surf_VH_MUSIC_3D(FO_surf* surf_ptr); // L. Du
 };
 
 

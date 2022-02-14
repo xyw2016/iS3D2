@@ -125,6 +125,12 @@ FO_data_reader::FO_data_reader(ParameterReader* paraRdr_in, string path_in)
   mode = paraRdr->getVal("mode");                         // change name to hydro_code
   dimension = paraRdr->getVal("dimension");
   include_baryon = paraRdr->getVal("include_baryon");
+  fo_binary = paraRdr->getVal("surface_in_binary");
+  only_use_partial_surface = paraRdr->getVal("only_use_partial_surface");
+  partial_surface_etas_min = paraRdr->getVal("partial_surface_etas_min");
+  partial_surface_etas_max = paraRdr->getVal("partial_surface_etas_max");
+  partial_surface_tau_min = paraRdr->getVal("partial_surface_tau_min");
+  partial_surface_tau_max = paraRdr->getVal("partial_surface_tau_max");
 }
 
 
@@ -138,11 +144,59 @@ int FO_data_reader::get_number_cells()
 {
   ostringstream surface_file;
   surface_file << "input/surface.dat";
-  Table block_file(surface_file.str().c_str());
 
-  number_of_cells = block_file.getNumberOfRows();
+  if(mode != 8)
+  {
+    Table block_file(surface_file.str().c_str());
 
-  return number_of_cells;
+    number_of_cells = block_file.getNumberOfRows();
+
+    return number_of_cells;
+  } else {
+    if (only_use_partial_surface) {
+
+      std::ifstream surfdat(surface_file.str().c_str(), std::ios::binary);
+
+      long count = 0;
+      float array[34];
+      
+      while (!surfdat.eof()){
+        for (int i = 0; i < 34; i++) {
+          float dummy = 0.;
+          surfdat.read((char*)&dummy, sizeof(float));
+          array[i] = double(dummy);
+        }
+      
+        // cout the number of cells within [t_min, t_max] & [eta_min, eta_max]
+        if ((array[0]<=partial_surface_tau_max) && (array[0]>partial_surface_tau_min)
+        && (array[3]<=partial_surface_etas_max) && (array[3]>=partial_surface_etas_min))
+        {
+          count++;
+        }
+      }
+      
+      surfdat.close();
+      printf("Total number of cells in the partial surface is: %ld\n", count);
+      return(count);
+
+    } else {
+
+      std::ifstream surfdat(surface_file.str().c_str(), std::ios::binary);
+      long count = 0;
+      float temp = 0.;
+
+      while (!surfdat.eof()){
+        surfdat.read((char*)&temp, sizeof(float));
+        count++;
+      }
+
+      long counted_line = long (floor(count/34));
+      
+      surfdat.close();
+      return(counted_line);
+    }
+  }
+
 }
 
 
@@ -161,6 +215,8 @@ void FO_data_reader::read_freezeout_surface(FO_surf* surf_ptr)
   {
     read_surface_hic_eventgen(surf_ptr);              // read 2+1d surface file from HIC-EventGen
   }
+  else if (mode == 8) 
+    read_surf_VH_MUSIC_3D(surf_ptr);//3+1D surface from MUSIC. by L. Du.
 }
 
 
@@ -565,6 +621,235 @@ void FO_data_reader::read_surface_music(FO_surf* surf_ptr)
   thermal_average << setprecision(15) << T_avg << "\n" << E_avg << "\n" << P_avg << "\n" << muB_avg << "\n" << nB_avg;
   thermal_average.close();
 }
+
+
+// New public MUSIC version (3+1)D format, L. Du
+void FO_data_reader::read_surf_VH_MUSIC_3D(FO_surf* surf_ptr)
+{
+
+  cout << "Reading in freezeout surface in (new) public MUSIC 3+1D format" << endl;
+  ostringstream surfdat_stream;
+    
+  surfdat_stream << "input/surface.dat";
+  
+  // average thermodynamic quantities on surface
+  double Tavg = 0.0;
+  double Eavg = 0.0;
+  double Pavg = 0.0;
+  double muBavg = 0.0;
+  double nBavg = 0.0;
+  double total_surface_volume = 0.0;
+    
+  std::ifstream surfdat(surfdat_stream.str().c_str(), std::ios::binary);
+
+ if (!only_use_partial_surface) {
+  
+    for (long i = 0; i < number_of_cells; i++)
+      {
+
+        float array[34];
+        float dummy;
+        
+        for (int ii = 0; ii < 34; ii++) {
+            dummy = 0.;
+            surfdat.read((char*)&dummy, sizeof(float));
+            array[ii] = double(dummy);
+        }
+        
+        
+        surf_ptr[i].tau = array[0];
+        surf_ptr[i].x   = array[1];
+        surf_ptr[i].y   = array[2];
+        surf_ptr[i].eta = array[3];
+        
+        surf_ptr[i].dat = array[4] * surf_ptr[i].tau;
+        surf_ptr[i].dax = array[5] * surf_ptr[i].tau;
+        surf_ptr[i].day = array[6] * surf_ptr[i].tau;
+        surf_ptr[i].dan = array[7] * surf_ptr[i].tau;
+        
+        //surf_ptr[i].ut  = array[8];
+        surf_ptr[i].ux  = array[9];
+        surf_ptr[i].uy  = array[10];
+        surf_ptr[i].un  = array[11] / surf_ptr[i].tau;
+
+
+        double E = array[12] * hbarC;
+        double T = array[13] * hbarC; 
+        
+        //if(T<0.1) T = 0.1;
+
+        surf_ptr[i].E    = E;
+        surf_ptr[i].T    = T;
+        surf_ptr[i].muB  = array[14] * hbarC;
+        //surf_ptr[i].muS  = array[15] * hbarC;
+        //surf_ptr[i].muC  = array[16] * hbarC;
+        
+        double P = array[17] * surf_ptr[i].T - surf_ptr[i].E;
+        surf_ptr[i].P    = P;
+        
+        //surf_ptr[i].pitt = array[18] * hbarC;
+        //surf_ptr[i].pitx = array[19] * hbarC;
+        //surf_ptr[i].pity = array[20] * hbarC;
+        //surf_ptr[i].pitn = array[21] * hbarC / surf_ptr[i].tau;
+        surf_ptr[i].pixx = array[22] * hbarC;
+        surf_ptr[i].pixy = array[23] * hbarC;
+        surf_ptr[i].pixn = array[24] * hbarC / surf_ptr[i].tau;
+        surf_ptr[i].piyy = array[25] * hbarC;
+        surf_ptr[i].piyn = array[26] * hbarC / surf_ptr[i].tau;
+        //surf_ptr[i].pinn = array[27] * hbarC / surf_ptr[i].tau / surf_ptr[i].tau;
+
+        surf_ptr[i].bulkPi = array[28] * hbarC;
+
+        surf_ptr[i].nB   = array[29];
+        //surf_ptr[i].Vt = array[30];
+        surf_ptr[i].Vx = array[31];
+        surf_ptr[i].Vy = array[32];
+        surf_ptr[i].Vn = array[33];
+        
+        // getting average thermodynamic quantities
+        double tau = surf_ptr[i].tau;
+        double ux = surf_ptr[i].ux;
+        double uy = surf_ptr[i].uy;
+        double un = surf_ptr[i].un;
+        double ut = sqrt(1.0 + ux * ux + uy * uy + tau * tau * un * un);  // enforce normalization
+        double dat = surf_ptr[i].dat;
+        double dax = surf_ptr[i].dax;
+        double day = surf_ptr[i].day;
+        double dan = surf_ptr[i].dan;
+        double muB = surf_ptr[i].muB;
+        double nB = surf_ptr[i].nB;
+
+        double udsigma = ut * dat + ux * dax + uy * day + un * dan;
+        double dsigma_dsigma = dat * dat - dax * dax - day * day - dan * dan / (tau * tau);
+        double dsigma_magnitude = fabs(udsigma) + sqrt(fabs(udsigma * udsigma - dsigma_dsigma));
+
+        total_surface_volume += dsigma_magnitude;
+
+        Eavg += (E * dsigma_magnitude);
+        Tavg += (T * dsigma_magnitude);
+        Pavg += (P * dsigma_magnitude);
+        muBavg += (muB * dsigma_magnitude);
+        nBavg += (nB * dsigma_magnitude);
+
+      }
+
+  } else {
+
+    long i = 0;
+
+    while (!surfdat.eof()){
+
+      float array[34];
+
+      for (int ii = 0; ii < 34; ii++) {
+        float dummy = 0.;
+        surfdat.read((char*)&dummy, sizeof(float));
+        array[ii] = double(dummy);
+      }
+    
+      // cout the number of cells within [t_min, t_max] & [eta_min, eta_max]
+      if ((array[0]<=partial_surface_tau_max) && (array[0]>partial_surface_tau_min)
+      && (array[3]<=partial_surface_etas_max) && (array[3]>=partial_surface_etas_min)){
+
+        surf_ptr[i].tau = array[0];
+        surf_ptr[i].x   = array[1];
+        surf_ptr[i].y   = array[2];
+        surf_ptr[i].eta = array[3];
+        
+        surf_ptr[i].dat = array[4] * surf_ptr[i].tau;
+        surf_ptr[i].dax = array[5] * surf_ptr[i].tau;
+        surf_ptr[i].day = array[6] * surf_ptr[i].tau;
+        surf_ptr[i].dan = array[7] * surf_ptr[i].tau;
+        
+        //surf_ptr[i].ut  = array[8];
+        surf_ptr[i].ux  = array[9];
+        surf_ptr[i].uy  = array[10];
+        surf_ptr[i].un  = array[11] / surf_ptr[i].tau;
+
+
+        double E = array[12] * hbarC;
+        double T = array[13] * hbarC; 
+        
+        //if(T<0.1) T = 0.1;
+
+        surf_ptr[i].E    = E;
+        surf_ptr[i].T    = T;
+        surf_ptr[i].muB  = array[14] * hbarC;
+        //surf_ptr[i].muS  = array[15] * hbarC;
+        //surf_ptr[i].muC  = array[16] * hbarC;
+        
+        double P = array[17] * surf_ptr[i].T - surf_ptr[i].E;
+        surf_ptr[i].P    = P;
+        
+        //surf_ptr[i].pitt = array[18] * hbarC;
+        //surf_ptr[i].pitx = array[19] * hbarC;
+        //surf_ptr[i].pity = array[20] * hbarC;
+        //surf_ptr[i].pitn = array[21] * hbarC / surf_ptr[i].tau;
+        surf_ptr[i].pixx = array[22] * hbarC;
+        surf_ptr[i].pixy = array[23] * hbarC;
+        surf_ptr[i].pixn = array[24] * hbarC / surf_ptr[i].tau;
+        surf_ptr[i].piyy = array[25] * hbarC;
+        surf_ptr[i].piyn = array[26] * hbarC / surf_ptr[i].tau;
+        //surf_ptr[i].pinn = array[27] * hbarC / surf_ptr[i].tau / surf_ptr[i].tau;
+
+        surf_ptr[i].bulkPi = array[28] * hbarC;
+
+        surf_ptr[i].nB   = array[29];
+        //surf_ptr[i].Vt = array[30];
+        surf_ptr[i].Vx = array[31];
+        surf_ptr[i].Vy = array[32];
+        surf_ptr[i].Vn = array[33];
+        
+        // getting average thermodynamic quantities
+        double tau = surf_ptr[i].tau;
+        double ux = surf_ptr[i].ux;
+        double uy = surf_ptr[i].uy;
+        double un = surf_ptr[i].un;
+        double ut = sqrt(1.0 + ux * ux + uy * uy + tau * tau * un * un);  // enforce normalization
+        double dat = surf_ptr[i].dat;
+        double dax = surf_ptr[i].dax;
+        double day = surf_ptr[i].day;
+        double dan = surf_ptr[i].dan;
+        double muB = surf_ptr[i].muB;
+        double nB = surf_ptr[i].nB;
+
+        double udsigma = ut * dat + ux * dax + uy * day + un * dan;
+        double dsigma_dsigma = dat * dat - dax * dax - day * day - dan * dan / (tau * tau);
+        double dsigma_magnitude = fabs(udsigma) + sqrt(fabs(udsigma * udsigma - dsigma_dsigma));
+
+        total_surface_volume += dsigma_magnitude;
+
+        Eavg += (E * dsigma_magnitude);
+        Tavg += (T * dsigma_magnitude);
+        Pavg += (P * dsigma_magnitude);
+        muBavg += (muB * dsigma_magnitude);
+        nBavg += (nB * dsigma_magnitude);
+
+        i++;
+
+        if(i==number_of_cells) break;
+      }
+    }
+
+    printf("Final cell number being read =%ld\n",i);
+
+  }
+  surfdat.close();
+
+  Tavg /= total_surface_volume;
+  Eavg /= total_surface_volume;
+  Pavg /= total_surface_volume;
+  muBavg /= total_surface_volume;
+  nBavg /= total_surface_volume;
+
+  // write averaged thermodynamic quantities to file
+  ofstream thermal_average("tables/thermodynamic/average_thermodynamic_quantities.dat", ios_base::out);
+  thermal_average << setprecision(15) << Tavg << "\n" << Eavg << "\n" << Pavg << "\n" << muBavg << "\n" << nBavg;
+  thermal_average.close();
+
+  return;
+}
+
 
 
 void FO_data_reader::read_surface_hic_eventgen(FO_surf* surf_ptr)

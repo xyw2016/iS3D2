@@ -3,22 +3,30 @@ operation = 1					# determines what iS3D calculates
 								# 	1 = smooth momentum spectra dN/pTdpTdphidy
 								# 	2 = sampled particle list (test_sampler = 0) or discrete spacetime/momentum distrbutions (test_sampler = 1)
 
-mode = 1						# file format of surface.dat to read in (your surface needs to match the correct format!)
+mode = 8						# file format of surface.dat to read in (your surface needs to match the correct format!)
 								# 	1 = CPU VH or CPU VAH			(3+1d vh or vah)
 								# 	5 = CPU VH w/ thermal vorticity	(3+1d vh)
 								# 	6 = MUSIC (public version) 		(3+1d vh)
 								#	7 = HIC-EventGen 				(2+1d vh)
+
+surface_in_binary = 1           # freeze-out surface in binary format for mode = 8
+
+only_use_partial_surface =  1    # for example only interested in cells near mid-rapidity
+partial_surface_etas_min = -0.05
+partial_surface_etas_max =  0.05
+partial_surface_tau_min  =  0.0
+partial_surface_tau_max  =  2.05
 
 hrg_eos = 3						# determines what PDG file to read in (chosen particles must be subset of selected PDG!)
 								# 	1 = urqmd v3.3+		(goes up to n-2250)
 								# 	2 = smash 			(goes up to Υ(3S))
 								# 	3 = smash box		(smash box: no decay info now, so can't do resdecays)	(what is this?)
 
-dimension = 2					# dimensionality of the freezeout surface
+dimension = 3					# dimensionality of the freezeout surface
 								#	2 = boost-invariant 2+1d
 								#	3 = non boost-invariant 3+1d
 
-df_mode = 4						# df correction method
+df_mode = 2						# df correction method
 								#	1 = Grad 14-moment approximation			(vh)
 								#	2 = RTA Chapman-Enskog expansion 			(vh)
 								#	3 = PTM modified equilibrium distribution 	(vh)
@@ -27,10 +35,10 @@ df_mode = 4						# df correction method
 								#	6 = RTA Chapman-Enskog expansion			(vah)
 								#	7 = PTM modified anisotropic distribution	(vah)
 
-include_baryon = 0				# switch to include baryon chemical potential
+include_baryon = 1				# switch to include baryon chemical potential
 include_bulk_deltaf = 1			# switch to include bulk viscous corrections
 include_shear_deltaf = 1		# switch to include shear viscous corrections (or residual shear for vah)
-include_baryondiff_deltaf = 0	# switch to include baryon diffusion corrections
+include_baryondiff_deltaf = 1	# switch to include baryon diffusion corrections
 
 regulate_deltaf = 0				# switch to regulate |df| < feq for vh (or |df~| < fa for vah)
 outflow = 0						# switch to include Theta(p.dsigma) in smooth Cooper-Frye formula
