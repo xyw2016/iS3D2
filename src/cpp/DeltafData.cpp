@@ -429,8 +429,15 @@ deltaf_coefficients Deltaf_Data::bilinear_interpolation(double T, double muB, do
 
   if(!(iTL >= 0 && iTR < points_T) || !(imuBL >= 0 && imuBR < points_muB))
   {
-    printf("Error: (T,muB) outside df coefficient table. Exiting...\n");
-    exit(-1);
+    printf("(T, muB) = (%lf, %lf)\n", T, muB);
+    printf("(iTL, iTR) = (%d, %d)\n", iTL, iTR);
+    printf("(imuBL, imuBR) = (%d, %d)\n", imuBL, imuBR);
+    printf("Error: (T,muB) outside df coefficient table. Set the cell to be the boundary values ...\n");
+    //exit(-1);
+    TL = T_array[0];
+    TR = T_array[iTR];
+    muBL = muB_array[imuBL];
+    muBR = muB_array[imuBR];
   }
   else
   {

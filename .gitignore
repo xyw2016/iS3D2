@@ -1,5 +1,4 @@
 .DS_Store
-tables/thermodynamic/average_thermodynamic_quantities.dat
 src/cpp/obj
 src/cpp/obj/*
 iS3D.e

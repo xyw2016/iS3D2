@@ -164,6 +164,7 @@ int FO_data_reader::get_number_cells()
         for (int i = 0; i < 34; i++) {
           float dummy = 0.;
           surfdat.read((char*)&dummy, sizeof(float));
+          if(isnan(dummy)) printf("Warning: Freezeout cell gets nan elements...!\n");
           array[i] = double(dummy);
         }
       
@@ -177,7 +178,8 @@ int FO_data_reader::get_number_cells()
       
       surfdat.close();
       printf("Total number of cells in the partial surface is: %ld\n", count);
-      return(count);
+      number_of_cells = count;
+      return number_of_cells;
 
     } else {
 
@@ -193,7 +195,9 @@ int FO_data_reader::get_number_cells()
       long counted_line = long (floor(count/34));
       
       surfdat.close();
-      return(counted_line);
+      printf("Total number of cells in the surface is: %ld\n", counted_line);
+      number_of_cells = counted_line;
+      return number_of_cells;
     }
   }
 
@@ -631,19 +635,17 @@ void FO_data_reader::read_surf_VH_MUSIC_3D(FO_surf* surf_ptr)
   ostringstream surfdat_stream;
     
   surfdat_stream << "input/surface.dat";
-  
-  // average thermodynamic quantities on surface
-  double Tavg = 0.0;
-  double Eavg = 0.0;
-  double Pavg = 0.0;
-  double muBavg = 0.0;
-  double nBavg = 0.0;
-  double total_surface_volume = 0.0;
+
+  double T_avg = 0;                                   // average thermodynamic variables across freezeout surface
+  double E_avg = 0;
+  double P_avg = 0;
+  double muB_avg = 0;
+  double nB_avg = 0;
+  double max_volume = 0;                              // max volume of freezeout surface
     
   std::ifstream surfdat(surfdat_stream.str().c_str(), std::ios::binary);
 
- if (!only_use_partial_surface) {
-  
+  if (!only_use_partial_surface) {  
     for (long i = 0; i < number_of_cells; i++)
       {
 
@@ -719,18 +721,17 @@ void FO_data_reader::read_surf_VH_MUSIC_3D(FO_surf* surf_ptr)
         double muB = surf_ptr[i].muB;
         double nB = surf_ptr[i].nB;
 
-        double udsigma = ut * dat + ux * dax + uy * day + un * dan;
-        double dsigma_dsigma = dat * dat - dax * dax - day * day - dan * dan / (tau * tau);
-        double dsigma_magnitude = fabs(udsigma) + sqrt(fabs(udsigma * udsigma - dsigma_dsigma));
+        double tau2 = tau * tau;
+        double uds = ut * dat  +  ux * dax  +  uy * day  +  un * dan;                 // u^\mu . d\sigma_\mu
+        double ds_ds = dat * dat  -  dax * dax  -  day * day  -  dan * dan / tau2;    // d\sigma^\mu . d\sigma_\mu
+        double ds_max = fabs(uds)  +  sqrt(fabs(uds * uds  -  ds_ds));                // max volume element |ds|
 
-        total_surface_volume += dsigma_magnitude;
-
-        Eavg += (E * dsigma_magnitude);
-        Tavg += (T * dsigma_magnitude);
-        Pavg += (P * dsigma_magnitude);
-        muBavg += (muB * dsigma_magnitude);
-        nBavg += (nB * dsigma_magnitude);
-
+        max_volume += ds_max;         // append values
+        E_avg += (E * ds_max);
+        T_avg += (T * ds_max);
+        P_avg += (P * ds_max);
+        muB_avg += (muB * ds_max);
+        nB_avg += (nB * ds_max);
       }
 
   } else {
@@ -813,17 +814,17 @@ void FO_data_reader::read_surf_VH_MUSIC_3D(FO_surf* surf_ptr)
         double muB = surf_ptr[i].muB;
         double nB = surf_ptr[i].nB;
 
-        double udsigma = ut * dat + ux * dax + uy * day + un * dan;
-        double dsigma_dsigma = dat * dat - dax * dax - day * day - dan * dan / (tau * tau);
-        double dsigma_magnitude = fabs(udsigma) + sqrt(fabs(udsigma * udsigma - dsigma_dsigma));
+        double tau2 = tau * tau;
+        double uds = ut * dat  +  ux * dax  +  uy * day  +  un * dan;                 // u^\mu . d\sigma_\mu
+        double ds_ds = dat * dat  -  dax * dax  -  day * day  -  dan * dan / tau2;    // d\sigma^\mu . d\sigma_\mu
+        double ds_max = fabs(uds)  +  sqrt(fabs(uds * uds  -  ds_ds));                // max volume element |ds|
 
-        total_surface_volume += dsigma_magnitude;
-
-        Eavg += (E * dsigma_magnitude);
-        Tavg += (T * dsigma_magnitude);
-        Pavg += (P * dsigma_magnitude);
-        muBavg += (muB * dsigma_magnitude);
-        nBavg += (nB * dsigma_magnitude);
+        max_volume += ds_max;         // append values
+        E_avg += (E * ds_max);
+        T_avg += (T * ds_max);
+        P_avg += (P * ds_max);
+        muB_avg += (muB * ds_max);
+        nB_avg += (nB * ds_max);
 
         i++;
 
@@ -836,15 +837,17 @@ void FO_data_reader::read_surf_VH_MUSIC_3D(FO_surf* surf_ptr)
   }
   surfdat.close();
 
-  Tavg /= total_surface_volume;
-  Eavg /= total_surface_volume;
-  Pavg /= total_surface_volume;
-  muBavg /= total_surface_volume;
-  nBavg /= total_surface_volume;
+  T_avg /= max_volume;
+  E_avg /= max_volume;
+  P_avg /= max_volume;
+  muB_avg /= max_volume;
+  nB_avg /= max_volume;
 
-  // write averaged thermodynamic quantities to file
+  if(isnan(T_avg)||isnan(muB_avg)) printf("Warning: Tavg or muBavg gets nan values...!\n");
+
+  // write averaged thermodynamic variables to file
   ofstream thermal_average("tables/thermodynamic/average_thermodynamic_quantities.dat", ios_base::out);
-  thermal_average << setprecision(15) << Tavg << "\n" << Eavg << "\n" << Pavg << "\n" << muBavg << "\n" << nBavg;
+  thermal_average << setprecision(15) << T_avg << "\n" << E_avg << "\n" << P_avg << "\n" << muB_avg << "\n" << nB_avg;
   thermal_average.close();
 
   return;
