@@ -646,35 +646,62 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
   {
     printf("Writing sampled particles list to OSCAR File...\n");
 
+    char filename[255] = "";
+    sprintf(filename, "results/particle_list_osc.dat");
+    ofstream spectraFile(filename, ios_base::out);
+
+    char line_buffer[500];
+
+    // OSCAR header file;
+    std::string OSCAR_header_filename;
+    OSCAR_header_filename = "tables/oscar_header.txt";
+    ifstream oscar_header(OSCAR_header_filename.c_str());
+    if (!oscar_header.is_open()) {
+      cout << "Error: OSCAR header file " << OSCAR_header_filename << " not found." << endl;
+    } else {
+      while (!oscar_header.eof()) {
+        oscar_header.getline(line_buffer, 500);
+        spectraFile << line_buffer << endl;
+      }
+      oscar_header.close();
+    }
+    
     for(int ievent = 0; ievent < Nevents; ievent++)
     {
-      char filename[255] = "";
-      sprintf(filename, "results/particle_list_osc_%d.dat", ievent + 1);
-
-      ofstream spectraFile(filename, ios_base::out);
-
+      
       int num_particles = particle_event_list[ievent].size();
 
-      //write the header
-      //spectraFile << "#" << " " << num_particles << "\n";
-      spectraFile << "n pid px py pz E m x y z t" << "\n";
-      for (int ipart = 0; ipart < num_particles; ipart++)
-      {
-        int mcid = particle_event_list[ievent][ipart].mcID;
-        double x = particle_event_list[ievent][ipart].x;
-        double y = particle_event_list[ievent][ipart].y;
-        double t = particle_event_list[ievent][ipart].t;
-        double z = particle_event_list[ievent][ipart].z;
+      //note only write events to file with at least one particle, else urqmd-afterburner will crash
+      if (num_particles > 0){
+        //write the header
+        //spectraFile << "#" << " " << num_particles << "\n";
+        //spectraFile << "n pid px py pz E m x y z t" << "\n";
+        spectraFile << setw(10) << ievent << "  " 
+                      << setw(10) << num_particles << "  " 
+                      << setw(8) << 0.0 << "  " << setw(8) << 0.0 << endl;
+        for (int ipart = 0; ipart < num_particles; ipart++)
+        {
+          int mcid = particle_event_list[ievent][ipart].mcID;
+          double x = particle_event_list[ievent][ipart].x;
+          double y = particle_event_list[ievent][ipart].y;
+          double t = particle_event_list[ievent][ipart].t;
+          double z = particle_event_list[ievent][ipart].z;
 
-        double m  = particle_event_list[ievent][ipart].mass;
-        double E  = particle_event_list[ievent][ipart].E;
-        double px = particle_event_list[ievent][ipart].px;
-        double py = particle_event_list[ievent][ipart].py;
-        double pz = particle_event_list[ievent][ipart].pz;
-        spectraFile << ipart << " " << mcid << " " << scientific <<  setw(5) << setprecision(16) << px << " " << py << " " << pz << " " << E << " " << m << " " << x << " " << y << " " << z << " " << t << "\n";
-      }//ipart
-      spectraFile.close();
+          double m  = particle_event_list[ievent][ipart].mass;
+          double E  = particle_event_list[ievent][ipart].E;
+          double px = particle_event_list[ievent][ipart].px;
+          double py = particle_event_list[ievent][ipart].py;
+          double pz = particle_event_list[ievent][ipart].pz;
+          //spectraFile << ipart << " " << mcid << " " << scientific <<  setw(5) << setprecision(16) << px << " " << py << " " << pz << " " 
+          //            << E << " " << m << " " << x << " " << y << " " << z << " " << t << "\n";
+          spectraFile << setw(10) << ipart + 1 << "  " << setw(10) << mcid << "  ";
+          sprintf(line_buffer, "%24.16e  %24.16e  %24.16e  %24.16e  %24.16e  %24.16e  %24.16e  %24.16e  %24.16e", px, py, pz, E, m, x, y, z, t);
+          spectraFile << line_buffer << endl;
+        }//ipart
+      }
     } // ievent
+
+    spectraFile.close();
   }
 
 

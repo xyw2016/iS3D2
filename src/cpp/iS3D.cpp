@@ -30,29 +30,12 @@ IS3D::~IS3D()
 }
 
 
-void IS3D::read_fo_surf_from_memory(
-                                    std::vector<double> tau_in,
-                                    std::vector<double> x_in,
-                                    std::vector<double> y_in,
-                                    std::vector<double> eta_in,
-                                    std::vector<double> dsigma_tau_in,
-                                    std::vector<double> dsigma_x_in,
-                                    std::vector<double> dsigma_y_in,
-                                    std::vector<double> dsigma_eta_in,
-                                    std::vector<double> E_in,
-                                    std::vector<double> T_in,
-                                    std::vector<double> P_in,
-                                    std::vector<double> ux_in,
-                                    std::vector<double> uy_in,
-                                    std::vector<double> un_in,
-                                    std::vector<double> pixx_in,
-                                    std::vector<double> pixy_in,
-                                    std::vector<double> pixn_in,
-                                    std::vector<double> piyy_in,
-                                    std::vector<double> piyn_in,
-                                    std::vector<double> pinn_in,
-                                    std::vector<double> Pi_in
-                                   )
+void IS3D::read_fo_surf_from_memory(std::vector<double> tau_in, std::vector<double> x_in, std::vector<double> y_in, std::vector<double> eta_in,
+  std::vector<double> dsigma_tau_in, std::vector<double> dsigma_x_in, std::vector<double> dsigma_y_in, std::vector<double> dsigma_eta_in,
+  std::vector<double> E_in, std::vector<double> T_in, std::vector<double> P_in, std::vector<double> ux_in, std::vector<double> uy_in, std::vector<double> un_in,
+  std::vector<double> pixx_in, std::vector<double> pixy_in, std::vector<double> pixn_in, std::vector<double> piyy_in, std::vector<double> piyn_in, std::vector<double> pinn_in,
+  std::vector<double> Pi_in
+  )
 {
   tau = tau_in;
   x = x_in;
@@ -265,15 +248,15 @@ void IS3D::run_particlization(int fo_from_file)
   efa.calculate_spectra(particle_event_list_in);                        // compute particle spectra from Cooper-Frye formula
 
 
-  int operation = paraRdr->getVal("operation");
+  // int operation = paraRdr->getVal("operation");
 
-  if(operation == 2)
-  {
-    printf("\nCopying final particle list to memory (JETSCAPE)\n");
-    printf("Event particle list contains %ld events\n", particle_event_list_in.size());
+  // if(operation == 2)
+  // {
+  //   printf("\nCopying final particle list to memory (JETSCAPE)\n");
+  //   printf("Event particle list contains %ld events\n", particle_event_list_in.size());
 
-    final_particles_ = particle_event_list_in;                    // store particlization events in memory to pass to afterburner module in JETSCAPE
-  }
+  //   final_particles_ = particle_event_list_in;                    // store particlization events in memory to pass to afterburner module in JETSCAPE
+  // }
 
   delete paraRdr;                                                 // delete pointers
   delete [] surf_ptr;
