@@ -1,3 +1,5 @@
+module load cmake/3.17.2
+module load gcc-compatibility/10.3.0
 
 rm -r results
 mkdir results

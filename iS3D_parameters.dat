@@ -1,4 +1,4 @@
-operation = 1					# determines what iS3D calculates
+operation = 2					# determines what iS3D calculates
 								#	0 = mean spacetime distribution dN/dX
 								# 	1 = smooth momentum spectra dN/pTdpTdphidy
 								# 	2 = sampled particle list (test_sampler = 0) or discrete spacetime/momentum distrbutions (test_sampler = 1)
@@ -11,13 +11,13 @@ mode = 8						# file format of surface.dat to read in (your surface needs to mat
 
 surface_in_binary = 1           # freeze-out surface in binary format for mode = 8
 
-only_use_partial_surface =  1    # for example only interested in cells near mid-rapidity
-partial_surface_etas_min = -0.05
-partial_surface_etas_max =  0.05
+only_use_partial_surface =  0    # for example only interested in cells near mid-rapidity
+partial_surface_etas_min = -0.5
+partial_surface_etas_max =  0.5
 partial_surface_tau_min  =  0.0
-partial_surface_tau_max  =  2.05
+partial_surface_tau_max  =  20.0
 
-hrg_eos = 3						# determines what PDG file to read in (chosen particles must be subset of selected PDG!)
+hrg_eos = 1						# determines what PDG file to read in (chosen particles must be subset of selected PDG!)
 								# 	1 = urqmd v3.3+		(goes up to n-2250)
 								# 	2 = smash 			(goes up to Υ(3S))
 								# 	3 = smash box		(smash box: no decay info now, so can't do resdecays)	(what is this?)
@@ -51,7 +51,7 @@ mass_pion0 = 0.138				# lightest pion mass (GeV)
 threads_per_block = 128			# number of threads per block in GPU (must be power of 2)
 chunk_size = 128				# number of surface cells passed per GPU kernel launch
 
-oversample	= 1					# run sampler iteratively until mininum number of hadrons
+oversample	= 0					# run sampler iteratively until mininum number of hadrons
 								# or max number of events sampled
 
 fast = 1						# switch to run sampler in fast mode

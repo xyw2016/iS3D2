@@ -48,18 +48,21 @@ Deltaf_Data::Deltaf_Data(ParameterReader * paraRdr_in)
 
 Deltaf_Data::~Deltaf_Data()
 {
+
+  printf("Deltaf_Data destructor...\n");
   // is there any harm in deallocating memory, while it's being used?
-  gsl_spline_free(c0_spline);
-  gsl_spline_free(c2_spline);
-  gsl_spline_free(c3_spline);
+  // gsl_spline_free(c0_spline);
+  // gsl_spline_free(c2_spline);
+  // gsl_spline_free(c3_spline);
 
-  gsl_spline_free(F_spline);
-  gsl_spline_free(betabulk_spline);
-  gsl_spline_free(betaV_spline);
-  gsl_spline_free(betapi_spline);
+  // gsl_spline_free(F_spline);
+  // gsl_spline_free(betabulk_spline);
+  // gsl_spline_free(betaV_spline);
+  // gsl_spline_free(betapi_spline);
 
-  gsl_spline_free(lambda_squared_spline);
-  gsl_spline_free(z_spline);
+  // gsl_spline_free(lambda_squared_spline);
+  // gsl_spline_free(z_spline);
+  // printf("End of Deltaf_Data destructor...\n");
 }
 
 void Deltaf_Data::load_df_coefficient_data()

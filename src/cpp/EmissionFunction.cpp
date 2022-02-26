@@ -654,7 +654,7 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
 
     // OSCAR header file;
     std::string OSCAR_header_filename;
-    OSCAR_header_filename = "tables/oscar_header.txt";
+    OSCAR_header_filename = "tables/OSCAR_header.txt";
     ifstream oscar_header(OSCAR_header_filename.c_str());
     if (!oscar_header.is_open()) {
       cout << "Error: OSCAR header file " << OSCAR_header_filename << " not found." << endl;
