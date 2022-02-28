@@ -12,7 +12,7 @@
 #include <array>
 #include <ctime>
 
-#ifdef OPENMP
+#ifdef _OPENMP
   #include <omp.h>
 #endif
 
@@ -130,8 +130,11 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
     // omp parameters
     CORES = 1;
 
-  #ifdef OPENMP
+  #ifdef _OPENMP
     CORES = omp_get_max_threads();
+    printf("OpenMP acceleration is on ...\n");
+  #else
+    printf("OpenMP acceleration is off ...\n");
   #endif
 
 

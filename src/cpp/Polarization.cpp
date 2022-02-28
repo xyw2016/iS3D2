@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <random>
 #include <array>
-#ifdef _OMP
+#ifdef _OPENMP
 #include <omp.h>
 #endif
 #include "iS3D.h"

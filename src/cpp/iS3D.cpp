@@ -235,7 +235,7 @@ void IS3D::run_particlization(int fo_from_file)
 
   printf("\n\n\nReading in momentum and spacetime rapidity tables from tables/...\n\n");
   Table pT_tab("tables/momentum/pT_table.dat");                   // pT table
-  Table phi_tab("tables/momentum/phi_table.dat");                 // phi table
+  Table phi_tab("tables/momentum/phi_table_48pt.dat");                 // phi table
   Table y_tab("tables/momentum/y_table.dat");                     // y table (for 3+1d smooth CFF)
   Table eta_tab("tables/spacetime_rapidity/eta_table.dat");       // eta table (for 2+1d smooth CFF)
 
