@@ -1310,6 +1310,8 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
           }
         }
 
+        write_particle_list_OSC();                      // write OSCAR particle list to file (if not using JETSCAPE)
+        
         if(TEST_SAMPLER)
         {
           write_sampled_dN_dy_to_file_test(MCID);         // write particle distributions to file
@@ -1318,10 +1320,6 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
           write_sampled_dN_dphipdy_to_file_test(MCID);
           write_sampled_vn_to_file_test(MCID);
           write_sampled_dN_dX_to_file_test(MCID);
-        }
-        else
-        {
-          write_particle_list_OSC();                      // write OSCAR particle list to file (if not using JETSCAPE)
         }
 
         particle_event_list_in = particle_event_list;     // store particlization events
