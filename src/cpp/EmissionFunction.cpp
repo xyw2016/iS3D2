@@ -1115,9 +1115,11 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
     {
       muB = (double*)calloc(FO_length, sizeof(double));
       nB = (double*)calloc(FO_length, sizeof(double));
-      Vx = (double*)calloc(FO_length, sizeof(double));
-      Vy = (double*)calloc(FO_length, sizeof(double));
-      Vn = (double*)calloc(FO_length, sizeof(double));
+      if(INCLUDE_BARYONDIFF_DELTAF){
+        Vx = (double*)calloc(FO_length, sizeof(double));
+        Vy = (double*)calloc(FO_length, sizeof(double));
+        Vn = (double*)calloc(FO_length, sizeof(double));
+      }
     }
 
 
@@ -1174,9 +1176,11 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
       {
         muB[icell] = surf->muB;
         nB[icell] = surf->nB;
-        Vx[icell] = surf->Vx;
-        Vy[icell] = surf->Vy;
-        Vn[icell] = surf->Vn;
+        if(INCLUDE_BARYONDIFF_DELTAF){
+          Vx[icell] = surf->Vx;
+          Vy[icell] = surf->Vy;
+          Vn[icell] = surf->Vn;
+        }
       }
 
       if(MODE == 5)
@@ -1387,9 +1391,11 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
     {
       free(muB);
       free(nB);
-      free(Vx);
-      free(Vy);
-      free(Vn);
+      if(INCLUDE_BARYONDIFF_DELTAF){
+        free(Vx);
+        free(Vy);
+        free(Vn);
+      }
     }
 
     if(MODE == 5)

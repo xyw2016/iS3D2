@@ -173,15 +173,16 @@ double *muB_fo, double *nB_fo, double *Vx_fo, double *Vy_fo, double *Vn_fo, Delt
       double Vn = 0.0;
       double baryon_enthalpy_ratio = 0.0;     // nB / (E + P)
 
-      if(INCLUDE_BARYON && INCLUDE_BARYONDIFF_DELTAF)
+      if(INCLUDE_BARYON)
       {
         muB = muB_fo[icell_glb];
         nB = nB_fo[icell_glb];
-        Vx = Vx_fo[icell_glb];
-        Vy = Vy_fo[icell_glb];
-        Vn = Vn_fo[icell_glb];
-        Vt = (Vx * ux  +  Vy * uy  +  Vn * tau2_un) / ut;
-
+        if(INCLUDE_BARYONDIFF_DELTAF){
+          Vx = Vx_fo[icell_glb];
+          Vy = Vy_fo[icell_glb];
+          Vn = Vn_fo[icell_glb];
+          Vt = (Vx * ux  +  Vy * uy  +  Vn * tau2_un) / ut;
+        }
         alphaB = muB / T;
         baryon_enthalpy_ratio = nB / (E + P);
       }
@@ -585,14 +586,16 @@ void EmissionFunctionArray::calculate_dN_pTdpTdphidy_feqmod(double *Mass, double
       double Vn = 0.0;
       double baryon_enthalpy_ratio = 0.0;     // nB / (E + P)
 
-      if(INCLUDE_BARYON && INCLUDE_BARYONDIFF_DELTAF)
+      if(INCLUDE_BARYON)
       {
         muB = muB_fo[icell_glb];
         nB = nB_fo[icell_glb];
-        Vx = Vx_fo[icell_glb];
-        Vy = Vy_fo[icell_glb];
-        Vn = Vn_fo[icell_glb];
-        Vt = (Vx * ux  +  Vy * uy  +  tau2 * Vn * un) / ut;
+        if(INCLUDE_BARYONDIFF_DELTAF){
+          Vx = Vx_fo[icell_glb];
+          Vy = Vy_fo[icell_glb];
+          Vn = Vn_fo[icell_glb];
+          Vt = (Vx * ux  +  Vy * uy  +  tau2 * Vn * un) / ut;
+        }
 
         alphaB = muB / T;
         baryon_enthalpy_ratio = nB / (E + P);

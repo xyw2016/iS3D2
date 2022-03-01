@@ -525,7 +525,7 @@ double EmissionFunctionArray::calculate_total_yield(double * Equilibrium_Density
       double Vy = 0;
       double Vn = 0;
 
-      if(INCLUDE_BARYON && INCLUDE_BARYONDIFF_DELTAF)
+      if(INCLUDE_BARYON)
       {
         muB = muB_fo[icell];
         nB = nB_fo[icell];
@@ -751,16 +751,18 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy(double *Mass, double *Sign, do
       double Vdsigma = 0.0;               // Vdotdsigma
       double baryon_enthalpy_ratio = 0.0;
 
-      if(INCLUDE_BARYON && INCLUDE_BARYONDIFF_DELTAF)
+      if(INCLUDE_BARYON)
       {
         muB = muB_fo[icell];
         nB = nB_fo[icell];
-        Vx = Vx_fo[icell];
-        Vy = Vy_fo[icell];
-        Vn = Vn_fo[icell];
-        Vt = (Vx * ux  +  Vy * uy  +  tau2 * Vn * un) / ut;
-        Vdsigma = Vt * dat  +  Vx * dax  +  Vy * day  +  Vn * dan;
-
+        if(INCLUDE_BARYONDIFF_DELTAF){
+          Vx = Vx_fo[icell];
+          Vy = Vy_fo[icell];
+          Vn = Vn_fo[icell];
+          Vt = (Vx * ux  +  Vy * uy  +  tau2 * Vn * un) / ut;
+          Vdsigma = Vt * dat  +  Vx * dax  +  Vy * day  +  Vn * dan;
+        }
+        
         alphaB = muB / T;
         baryon_enthalpy_ratio = nB / (Energy + P);
       }

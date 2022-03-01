@@ -248,15 +248,17 @@ double *muB_fo, double *nB_fo, double *Vx_fo, double *Vy_fo, double *Vn_fo, Delt
         double Vn = 0.0;
         double baryon_enthalpy_ratio = 0.0;     // nB / (E + P)
 
-        if(INCLUDE_BARYON && INCLUDE_BARYONDIFF_DELTAF)
+        if(INCLUDE_BARYON)
         {
           muB = muB_fo[icell_glb];
           nB = nB_fo[icell_glb];
-          Vx = Vx_fo[icell_glb];
-          Vy = Vy_fo[icell_glb];
-          Vn = Vn_fo[icell_glb];
-          Vt = (Vx * ux  +  Vy * uy  +  tau2 * Vn * un) / ut;
-
+          if(INCLUDE_BARYONDIFF_DELTAF){
+            Vx = Vx_fo[icell_glb];
+            Vy = Vy_fo[icell_glb];
+            Vn = Vn_fo[icell_glb];
+            Vt = (Vx * ux  +  Vy * uy  +  tau2 * Vn * un) / ut;
+          }
+          
           alphaB = muB / T;
           baryon_enthalpy_ratio = nB / (E + P);
         }
@@ -762,15 +764,17 @@ double *muB_fo, double *nB_fo, double *Vx_fo, double *Vy_fo, double *Vn_fo, Gaus
         double Vn = 0.0;
         double baryon_enthalpy_ratio = 0.0;     // nB / (E + P)
 
-        if(INCLUDE_BARYON && INCLUDE_BARYONDIFF_DELTAF)
+        if(INCLUDE_BARYON)
         {
           muB = muB_fo[icell_glb];
           nB = nB_fo[icell_glb];
-          Vx = Vx_fo[icell_glb];
-          Vy = Vy_fo[icell_glb];
-          Vn = Vn_fo[icell_glb];
-          Vt = (Vx * ux  +  Vy * uy  +  tau2 * Vn * un) / ut;
-
+          if(INCLUDE_BARYONDIFF_DELTAF){
+            Vx = Vx_fo[icell_glb];
+            Vy = Vy_fo[icell_glb];
+            Vn = Vn_fo[icell_glb];
+            Vt = (Vx * ux  +  Vy * uy  +  tau2 * Vn * un) / ut;
+          }
+          
           alphaB = muB / T;
           baryon_enthalpy_ratio = nB / (E + P);
         }
