@@ -16,6 +16,9 @@
 #include "Arsenal.h"
 #include "ParameterReader.h"
 #include "DeltafData.h"
+#ifdef _OPENMP
+  #include <omp.h>
+#endif
 
 
 IS3D::IS3D()
@@ -69,13 +72,17 @@ void IS3D::run_particlization(int fo_from_file)
   printf("::                                    ::\n");
   printf("::::::::::::::::::::::::::::::::::::::::\n\n");
 
-
 #ifdef PRINT_PROCESSOR
   print_processor();                                    // print processor in use (for benchmarking)
 #endif
+#ifdef _OPENMP
+    printf("OpenMP acceleration is on...\n\n");
+#else
+    printf("OpenMP acceleration is off...\n\n");
+#endif
 
-
-  printf("\n\nReading in parameters...\n\n");
+  printf("===================================================\n");
+  printf("Reading in parameters...\n\n");
   ParameterReader *paraRdr = new ParameterReader;       // parameter reader class
   paraRdr->readFromFile("iS3D_parameters.dat");
   int include_baryon = paraRdr->getVal("include_baryon");
@@ -85,8 +92,8 @@ void IS3D::run_particlization(int fo_from_file)
 #endif
 
 
-
-  printf("\n\nReading in freezeout surface ");
+  printf("===================================================\n");
+  printf("Reading in freezeout surface...\n\n");
   long FO_length = 0;
   FO_data_reader freeze_out_data(paraRdr, "input");     // freezeout reader class
 
@@ -202,23 +209,23 @@ void IS3D::run_particlization(int fo_from_file)
     thermal_average.close();
   }
 
-  printf("Number of freezeout cells = %ld\n\n", FO_length);
+  printf("Number of freezeout cells = %ld\n", FO_length);
 
 
-
-  printf("\n\nReading in particle info from ");
+  printf("===================================================\n");
+  printf("Reading in particle info from ");
   particle_info *particle_data = new particle_info[Maxparticle];  // particle info pointer
   PDG_Data pdg(paraRdr);                                          // PDG class
   int Nparticle = pdg.read_resonances(particle_data);             // get number of resonances in PDG file
 
-
-  printf("\n\nReading in chosen particles table from PDG/chosen_particles.dat... (please check if 1 blank line eof)\n\n");
+  printf("===================================================\n");
+  printf("Reading in chosen particles table from PDG/chosen_particles.dat... (please check if 1 blank line eof)\n\n");
   Table chosen_particles("PDG/chosen_particles.dat");             // chosen particles table
 
   printf("Number of chosen particles = %ld\n", chosen_particles.getNumberOfRows());
 
 
-
+  printf("===================================================\n");
   Deltaf_Data *df_data = new Deltaf_Data(paraRdr);               // df data pointer
   df_data->load_df_coefficient_data();                            // read in df coefficient tables
 
@@ -232,15 +239,15 @@ void IS3D::run_particlization(int fo_from_file)
   df_data->test_df_coefficients(-0.1);                            // test df coefficients for bulk pressure Pi = -Peq/10
 
 
-
-  printf("\n\n\nReading in momentum and spacetime rapidity tables from tables/...\n\n");
+  printf("===================================================\n");
+  printf("Reading in momentum and spacetime rapidity tables from tables/...\n\n");
   Table pT_tab("tables/momentum/pT_table.dat");                   // pT table
   Table phi_tab("tables/momentum/phi_table_48pt.dat");                 // phi table
   Table y_tab("tables/momentum/y_table.dat");                     // y table (for 3+1d smooth CFF)
   Table eta_tab("tables/spacetime_rapidity/eta_table.dat");       // eta table (for 2+1d smooth CFF)
 
 
-
+  printf("===================================================\n");
   // emission function class (continuous or sampled particle spectra)
   EmissionFunctionArray efa(paraRdr, &chosen_particles, &pT_tab, &phi_tab, &y_tab, &eta_tab, particle_data, Nparticle, surf_ptr, FO_length, df_data);
 
@@ -262,6 +269,7 @@ void IS3D::run_particlization(int fo_from_file)
   delete [] surf_ptr;
   delete [] particle_data;
   delete df_data;
+  printf("Done. Goodbye!\n");
 }
 
 

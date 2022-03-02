@@ -49,7 +49,7 @@ Deltaf_Data::Deltaf_Data(ParameterReader * paraRdr_in)
 Deltaf_Data::~Deltaf_Data()
 {
 
-  printf("Deltaf_Data destructor...\n");
+  // printf("Deltaf_Data destructor...\n");
   // is there any harm in deallocating memory, while it's being used?
   // gsl_spline_free(c0_spline);
   // gsl_spline_free(c2_spline);
@@ -67,7 +67,7 @@ Deltaf_Data::~Deltaf_Data()
 
 void Deltaf_Data::load_df_coefficient_data()
 {
-  printf("\n\n\nReading in Grad 14-moment and RTA Chapman-Enskog coefficient tables from deltaf_coefficients/...\n");
+  printf("Reading in Grad 14-moment and RTA Chapman-Enskog coefficient tables from deltaf_coefficients/...\n\n");
 
   // now string join
   char c0[100] = "";
@@ -300,7 +300,7 @@ void Deltaf_Data::compute_jonah_coefficients(particle_info * particle_data, int 
 
 void Deltaf_Data::construct_cubic_splines()
 {
-  printf("\nConstructing cubic splines for df coefficients (muB = 0)...\n");
+  printf("Constructing cubic splines for df coefficients (muB = 0)...\n");
 
   // Allocate memory for cubic splines
   c0_spline = gsl_spline_alloc(gsl_interp_cspline, points_T);
@@ -547,18 +547,18 @@ void Deltaf_Data::test_df_coefficients(double bulkPi_over_P)
 
   if(df_mode == 1)
   {
-    printf("\nTesting Grad 14-moment df coefficients for Pi/Peq = %.3f\n", bulkPi_over_P);
-    printf("\n(c0, c1, c2, c3, c4, shear14) = (%lf, %lf, %lf, %lf, %lf, %lf)\n", df.c0, df.c1, df.c2, df.c3, df.c4, df.shear14_coeff);
+    printf("Testing Grad 14-moment df coefficients for Pi/Peq = %.3f\n", bulkPi_over_P);
+    printf("(c0, c1, c2, c3, c4, shear14) = (%lf, %lf, %lf, %lf, %lf, %lf)\n", df.c0, df.c1, df.c2, df.c3, df.c4, df.shear14_coeff);
   }
   else if(df_mode == 2 || df_mode == 3 || df_mode == 5)
   {
-    printf("\nTesting RTA Chapman-Enskog (or PTM) df coefficients for Pi/Peq = %.3f\n", bulkPi_over_P);
-    printf("\n(F, G, betabulk, betaV, betapi) = (%lf, %lf, %lf, %lf, %lf)\n", df.F, df.G, df.betabulk, df.betaV, df.betapi);
+    printf("Testing RTA Chapman-Enskog (or PTM) df coefficients for Pi/Peq = %.3f\n", bulkPi_over_P);
+    printf("(F, G, betabulk, betaV, betapi) = (%lf, %lf, %lf, %lf, %lf)\n", df.F, df.G, df.betabulk, df.betaV, df.betapi);
   }
   else if(df_mode == 4)
   {
-    printf("\nTesting PTB df coefficients for Pi/Peq = %.3f\n", bulkPi_over_P);
-    printf("\n(lambda, z, dlambda, dz, betapi) = (%lf, %lf, %lf, %lf, %lf)\n", df.lambda, df.z, df.delta_lambda, df.delta_z, df.betapi);
+    printf("Testing PTB df coefficients for Pi/Peq = %.3f\n", bulkPi_over_P);
+    printf("(lambda, z, dlambda, dz, betapi) = (%lf, %lf, %lf, %lf, %lf)\n", df.lambda, df.z, df.delta_lambda, df.delta_z, df.betapi);
   }
 }
 

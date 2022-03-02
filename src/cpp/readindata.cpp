@@ -154,6 +154,7 @@ int FO_data_reader::get_number_cells()
     return number_of_cells;
   } else {
     if (only_use_partial_surface) {
+      printf("Reading in a partial surface\n");
 
       std::ifstream surfdat(surface_file.str().c_str(), std::ios::binary);
 
@@ -177,7 +178,7 @@ int FO_data_reader::get_number_cells()
       }
       
       surfdat.close();
-      printf("Total number of cells in the partial surface is: %ld\n", count);
+      //printf("Total number of cells in the partial surface is: %ld\n", count);
       number_of_cells = count;
       return number_of_cells;
 
@@ -195,7 +196,7 @@ int FO_data_reader::get_number_cells()
       long counted_line = long (floor(count/34));
       
       surfdat.close();
-      printf("Total number of cells in the surface is: %ld\n", counted_line);
+      //printf("Total number of cells in the surface is: %ld\n", counted_line);
       number_of_cells = counted_line;
       return number_of_cells;
     }
@@ -631,7 +632,7 @@ void FO_data_reader::read_surface_music(FO_surf* surf_ptr)
 void FO_data_reader::read_surf_VH_MUSIC_3D(FO_surf* surf_ptr)
 {
 
-  cout << "Reading in freezeout surface in (new) public MUSIC 3+1D format" << endl;
+  cout << "Reading in freezeout surface in MUSIC 3+1D format with baryon" << endl;
   ostringstream surfdat_stream;
     
   surfdat_stream << "input/surface.dat";
@@ -831,9 +832,6 @@ void FO_data_reader::read_surf_VH_MUSIC_3D(FO_surf* surf_ptr)
         if(i==number_of_cells) break;
       }
     }
-
-    printf("Final cell number being read =%ld\n",i);
-
   }
   surfdat.close();
 
@@ -1370,14 +1368,14 @@ int PDG_Data::read_resonances_conventional(particle_info * particle, string pdg_
   }
   if(baryon != antibaryon) printf("Error: (anti)baryons not paired correctly\n");
 
-  printf("\nNumber of resonances = %d\n\n\t", Nparticle);
-  printf("%d mesons\n\t", meson);
-  printf("%d baryons\n\t", baryon);
-  printf("%d antibaryons\n\n", antibaryon);
+  printf("Number of resonances = %d\n", Nparticle);
+  printf("%d mesons\n", meson);
+  printf("%d baryons\n", baryon);
+  printf("%d antibaryons\n", antibaryon);
 
   particle_info last_particle = particle[Nparticle - 1];
 
-  printf("Last particle has mcid = %ld, %s, m = %lf GeV (please check this) \n\n", last_particle.mc_id, last_particle.name.c_str(), last_particle.mass);
+  printf("Last particle has mcid = %ld, %s, m = %lf GeV (please check this)\n", last_particle.mc_id, last_particle.name.c_str(), last_particle.mass);
 
   return Nparticle;
 }
@@ -1391,7 +1389,7 @@ int PDG_Data::read_resonances_smash_box(particle_info * particle, string pdg_fil
   //******************************|
   //******************************|
 
-  printf("\nNumber of mcid entries per row is set to mcid_entries = %d (increase if needed)\n", mcid_entries);
+  printf("Number of mcid entries per row is set to mcid_entries = %d (increase if needed)\n", mcid_entries);
 
   long int * mc_id = (long int*)calloc(mcid_entries, sizeof(long int));
 
@@ -1489,14 +1487,14 @@ int PDG_Data::read_resonances_smash_box(particle_info * particle, string pdg_fil
   }
   if(baryon != antibaryon) printf("Error: (anti)baryons not paired correctly\n");
 
-  printf("\nNumber of resonances = %d\n\n\t", Nparticle);
-  printf("%d mesons\n\t", meson);
-  printf("%d baryons\n\t", baryon);
-  printf("%d antibaryons\n\n", antibaryon);
+  printf("Number of resonances = %d\n", Nparticle);
+  printf("%d mesons\n", meson);
+  printf("%d baryons\n", baryon);
+  printf("%d antibaryons\n", antibaryon);
 
   particle_info last_particle = particle[Nparticle - 1];
 
-  printf("Last particle is mcid = %ld, %s, m = %lf GeV (please check this) \n\n", last_particle.mc_id, last_particle.name.c_str(), last_particle.mass);
+  printf("Last particle is mcid = %ld, %s, m = %lf GeV (please check this) \n", last_particle.mc_id, last_particle.name.c_str(), last_particle.mass);
 
   return Nparticle;
 }
@@ -1510,28 +1508,28 @@ int PDG_Data::read_resonances(particle_info * particle)
   {
     case 1:
     {
-      printf("PDG/pdg-urqmd_v3.3+.dat... (please check if 1 blank line eof)\n");
+      printf("PDG/pdg-urqmd_v3.3+.dat... (please check if 1 blank line eof)\n\n");
 
       Nparticle = read_resonances_conventional(particle, urqmd);      // read urqmd
       break;
     }
     case 2:
     {
-      printf("PDG/pdg_smash.dat... (please check if 1 blank line eof)\n");
+      printf("PDG/pdg_smash.dat... (please check if 1 blank line eof)\n\n");
 
       Nparticle = read_resonances_conventional(particle, smash);      // read smash
       break;
     }
     case 3:
     {
-      printf("PDG/pdg_box.dat...\n");
+      printf("PDG/pdg_box.dat...\n\n");
 
       Nparticle = read_resonances_smash_box(particle, smash_box);     // read smash box
       break;
     }
     default:
     {
-      printf("\nread_resonances error: need to set hrg_eos = (1,2,3)\n");
+      printf("read_resonances error: need to set hrg_eos = (1,2,3)\n");
       exit(-1);
     }
   }

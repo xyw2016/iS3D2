@@ -35,6 +35,7 @@ Table::Table() { data = NULL; numberOfCols = 0; numberOfRows = 0; };
 Table::Table(string filename)
 // This version load table from file.
 {
+  printf("Reading in %s\n", filename.c_str());
   data = NULL;
   loadTableFromFile(filename);
 }

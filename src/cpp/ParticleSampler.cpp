@@ -630,7 +630,7 @@ double EmissionFunctionArray::calculate_total_yield(double * Equilibrium_Density
       Ntot *= (2.0 * Y_CUT);
     }
 
-    printf("\nEstimated total particle yield = %ld particles\n", (long)Ntot);
+    printf("Estimated total particle yield = %ld particles\n", (long)Ntot);
 
     return Ntot;
   }
@@ -1130,7 +1130,7 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy(double *Mass, double *Sign, do
         } // sampled hadrons (n)
       } // sampled events (ievent)
     } // freezeout cells (icell)
-    printf("\nMomentum sampling efficiency = %f %%\n", (float)(100.0 * (double)acceptances / (double)samples));
+    printf("Momentum sampling efficiency = %f %%\n", (float)(100.0 * (double)acceptances / (double)samples));
 }
 
 
@@ -1618,7 +1618,7 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy_famod(double *Mass, double *Si
     } // events (ievent)
   } // freezeout cells (icell)
 
-  printf("\nMomentum sampling efficiency = %f %%\n", (float)(100.0 * (double)acceptances / (double)samples));
+  printf("Momentum sampling efficiency = %f %%\n", (float)(100.0 * (double)acceptances / (double)samples));
 
   printf("pl went negative for %ld / %ld cells\n\n", plpt_negative, FO_length);
   printf("Number of reconstruction failures = %ld\n", reconstruction_fail);

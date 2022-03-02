@@ -132,9 +132,6 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
 
   #ifdef _OPENMP
     CORES = omp_get_max_threads();
-    printf("OpenMP acceleration is on ...\n");
-  #else
-    printf("OpenMP acceleration is off ...\n");
   #endif
 
 
@@ -188,6 +185,8 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
       printf("EmissionFunctionArray error: need to set df_mode = (1,2,3,4,5)\n");
       exit(-1);
     }
+
+    printf("Running particlization with %s...\n\n", df_correction.c_str());
 
 
     INCLUDE_BARYON = paraRdr->getVal("include_baryon");
@@ -1010,7 +1009,6 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
   //*********************************************************************************************
   void EmissionFunctionArray::calculate_spectra(std::vector<std::vector<Sampled_Particle>> &particle_event_list_in)
   {
-    printf("\n\nRunning particlization with %s\n\n", df_correction.c_str());
 
 #ifdef OPENMP
     double t1 = omp_get_wtime();
@@ -1199,7 +1197,7 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
     {
       case 0:
       {
-        printf("\nComputing particle spacetime distributions...\n\n");
+        printf("Computing particle spacetime distributions...\n");
 
         switch(DF_MODE)
         {
@@ -1231,7 +1229,7 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
       }
       case 1:
       {
-        printf("\nComputing continuous momentum spectra...\n\n");
+        printf("Computing continuous momentum spectra...\n");
 
         switch(DF_MODE)
         {
@@ -1258,6 +1256,8 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
             exit(-1);
           }
         }
+        printf("===================================================\n");
+        printf("Writing results to files...\n\n");
         write_dN_pTdpTdphidy_toFile(MCID);   // write continuous particle momentum spectra to file
         write_continuous_vn_toFile(MCID);
         write_dN_twopipTdpTdy_toFile(MCID);
@@ -1275,11 +1275,11 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
 
           Nevents = (long)min(ceil(MIN_NUM_HADRONS / Ntotal), MAX_NUM_SAMPLES);   // number of events to sample
 
-          printf("\nSampling %ld particlization events...\n\n", Nevents);
+          printf("Sampling %ld particlization events...\n", Nevents);
         }
         else
         {
-          printf("\nSampling 1 particlization event...\n\n");
+          printf("Sampling 1 particlization event...\n");
         }
 
 
@@ -1310,6 +1310,9 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
           }
         }
 
+        printf("===================================================\n");
+        printf("Writing results to files...\n\n");
+
         write_particle_list_OSC();                      // write OSCAR particle list to file (if not using JETSCAPE)
         
         if(TEST_SAMPLER)
@@ -1336,13 +1339,13 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
 
     if(MODE == 5)
     {
-      printf("\nComputing spin polarization...\n");
+      printf("Computing spin polarization...\n");
       calculate_spin_polzn(Mass, Sign, Degeneracy, tau, eta, ux, uy, un, dat, dax, day, dan, wtx, wty, wtn, wxy, wxn, wyn, QGP);
       write_polzn_vector_toFile();
     }
 
-
-    printf("\nFreeing memory...\n");
+    printf("===================================================\n");
+    printf("Freeing memory...\n");
 
     free(Mass);
     free(Sign);
@@ -1408,13 +1411,13 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
 
   #ifdef OPENMP
     double t2 = omp_get_wtime();
-    cout << "\nSpectra calculation took " << (t2 - t1) << " seconds\n" << endl;
+    cout << "Spectra calculation took " << (t2 - t1) << " seconds" << endl;
   #else
     // sw.toc();
     // cout << "\nSpectra calculation took " << sw.takeTime() << " seconds\n" << endl;
     double duration = (clock() - start) / (double)CLOCKS_PER_SEC;
 
-    cout << "\nSpectra calculation took " << duration << " seconds\n" << endl;
+    cout << "Spectra calculation took " << duration << " seconds" << endl;
 
   #endif
   }
