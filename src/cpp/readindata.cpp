@@ -707,7 +707,7 @@ void FO_data_reader::read_surf_VH_MUSIC_3D(FO_surf* surf_ptr)
         //surf_ptr[i].Vt = array[30];
         surf_ptr[i].Vx = array[31];
         surf_ptr[i].Vy = array[32];
-        surf_ptr[i].Vn = array[33];
+        surf_ptr[i].Vn = array[33] / surf_ptr[i].tau;
         
         // getting average thermodynamic quantities
         double tau = surf_ptr[i].tau;
@@ -800,7 +800,7 @@ void FO_data_reader::read_surf_VH_MUSIC_3D(FO_surf* surf_ptr)
         //surf_ptr[i].Vt = array[30];
         surf_ptr[i].Vx = array[31];
         surf_ptr[i].Vy = array[32];
-        surf_ptr[i].Vn = array[33];
+        surf_ptr[i].Vn = array[33] / surf_ptr[i].tau;
         
         // getting average thermodynamic quantities
         double tau = surf_ptr[i].tau;

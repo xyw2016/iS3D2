@@ -511,19 +511,19 @@ double EmissionFunctionArray::calculate_total_yield(double * Equilibrium_Density
         pitt = (pitx * ux  +  pity * uy  +  tau2 * pitn * un) / ut;
       }
 
-      double bulkPi = 0;                  // bulk pressure (GeV/fm^3)
+      double bulkPi = 0.;                  // bulk pressure (GeV/fm^3)
 
       if(INCLUDE_BULK_DELTAF)
       {
         bulkPi = bulkPi_fo[icell];
       }
 
-      double muB = 0;                     // baryon chemical potential [GeV]
-      double nB = 0;                      // net-baryon density
-      double Vt = 0;                      // contravariant baryon diffusion current V^mu
-      double Vx = 0;
-      double Vy = 0;
-      double Vn = 0;
+      double muB = 0.;                     // baryon chemical potential [GeV]
+      double nB = 0.;                      // net-baryon density
+      double Vt = 0.;                      // contravariant baryon diffusion current V^mu
+      double Vx = 0.;
+      double Vy = 0.;
+      double Vn = 0.;
 
       if(INCLUDE_BARYON)
       {
@@ -1226,11 +1226,11 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy_famod(double *Mass, double *Si
 
     double bulkPi = bulkPi_fo[icell];   // bulk pressure [GeV/fm^3]
 
-    double muB = 0;                     // baryon chemical potential [GeV]
-    double Vt = 0;                      // contravariant net baryon diffusion V^mu
-    double Vx = 0;                      // enforce orthogonality V.u = 0
-    double Vy = 0;
-    double Vn = 0;
+    double muB = 0.;                     // baryon chemical potential [GeV]
+    double Vt = 0.;                      // contravariant net baryon diffusion V^mu
+    double Vx = 0.;                      // enforce orthogonality V.u = 0
+    double Vy = 0.;
+    double Vn = 0.;
 
     if(INCLUDE_BARYON)
     {
@@ -1302,12 +1302,12 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy_famod(double *Mass, double *Si
     double pl = P + bulkPi + pizz_LRF;      // longitudinal pressure
     double pt = P + bulkPi - pizz_LRF/2.;   // transverse pressure
 
-    double piTxx_LRF = 0;                   // piperp^\munu LRF components
-    double piTxy_LRF = 0;
-    double piTyy_LRF = 0;
+    double piTxx_LRF = 0.;                   // piperp^\munu LRF components
+    double piTxy_LRF = 0.;
+    double piTyy_LRF = 0.;
 
-    double WTzx_LRF = 0;                    // Wperpz^\mu LRF components
-    double WTzy_LRF = 0;
+    double WTzx_LRF = 0.;                    // Wperpz^\mu LRF components
+    double WTzy_LRF = 0.;
 
     if(INCLUDE_SHEAR_DELTAF)                // include residual shear corrections
     {
