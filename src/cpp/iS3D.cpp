@@ -86,6 +86,8 @@ void IS3D::run_particlization(int fo_from_file)
   ParameterReader *paraRdr = new ParameterReader;       // parameter reader class
   paraRdr->readFromFile("iS3D_parameters.dat");
   int include_baryon = paraRdr->getVal("include_baryon");
+  int operation = paraRdr->getVal("operation");
+  int TEST_SAMPLER = paraRdr->getVal("test_sampler");
 
 #ifdef PRINT_PARAMETERS
   paraRdr->echo();
@@ -220,10 +222,13 @@ void IS3D::run_particlization(int fo_from_file)
 
   printf("===================================================\n");
   printf("Reading in chosen particles table from PDG/chosen_particles.dat... (please check if 1 blank line eof)\n\n");
+
   Table chosen_particles("PDG/chosen_particles.dat");             // chosen particles table
+  if(operation == 1 && TEST_SAMPLER == 1){
+    Table chosen_particles("PDG/chosen_particles_pikp.dat");      // if testing sampler and getting continuous distributions, just choose pi/k/p/pbar
+  }
 
   printf("Number of chosen particles = %ld\n", chosen_particles.getNumberOfRows());
-
 
   printf("===================================================\n");
   Deltaf_Data *df_data = new Deltaf_Data(paraRdr);               // df data pointer
