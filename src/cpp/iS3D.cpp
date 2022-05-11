@@ -87,7 +87,7 @@ void IS3D::run_particlization(int fo_from_file)
   paraRdr->readFromFile("iS3D_parameters.dat");
   int include_baryon = paraRdr->getVal("include_baryon");
   int operation = paraRdr->getVal("operation");
-  int TEST_SAMPLER = paraRdr->getVal("test_sampler");
+  int test_sampler = paraRdr->getVal("test_sampler");
 
 #ifdef PRINT_PARAMETERS
   paraRdr->echo();
@@ -223,10 +223,15 @@ void IS3D::run_particlization(int fo_from_file)
   printf("===================================================\n");
   printf("Reading in chosen particles table from PDG/chosen_particles.dat... (please check if 1 blank line eof)\n\n");
 
-  Table chosen_particles("PDG/chosen_particles.dat");             // chosen particles table
-  if(operation == 1 && TEST_SAMPLER == 1){
-    Table chosen_particles("PDG/chosen_particles_pikp.dat");      // if testing sampler and getting continuous distributions, just choose pi/k/p/pbar
+  string chosen_particles_list;
+
+  if(operation == 1 && test_sampler == 1){
+    chosen_particles_list = "PDG/chosen_particles_pikp.dat";      // if testing sampler and getting continuous distributions, just choose pi/k/p/pbar
+  } else {
+    chosen_particles_list = "PDG/chosen_particles.dat";
   }
+
+  Table chosen_particles(chosen_particles_list);             // chosen particles table
 
   printf("Number of chosen particles = %ld\n", chosen_particles.getNumberOfRows());
 
@@ -246,11 +251,25 @@ void IS3D::run_particlization(int fo_from_file)
 
   printf("===================================================\n");
   printf("Reading in momentum and spacetime rapidity tables from tables/...\n\n");
-  Table pT_tab("tables/momentum/pT_table.dat");                   // pT table
-  Table phi_tab("tables/momentum/phi_table_48pt.dat");                 // phi table
-  Table y_tab("tables/momentum/y_table.dat");                     // y table (for 3+1d smooth CFF)
-  Table eta_tab("tables/spacetime_rapidity/eta_table.dat");       // eta table (for 2+1d smooth CFF)
 
+  string pT_tab_path, phi_tab_path, y_tab_path, eta_tab_path;
+
+  if(operation == 1 && test_sampler == 1){
+    pT_tab_path = "tables/all_tables/pT/pT_gauss_table_24pt.dat";                   // pT table
+    phi_tab_path = "tables/all_tables/phi/phi_gauss_table_24pt.dat";                 // phi table
+    y_tab_path = "tables/all_tables/y_table_half.dat";                     // y table (for 3+1d smooth CFF)
+    eta_tab_path = "tables/all_tables/eta_table_half.dat";       // eta table (for 2+1d smooth CFF)
+  } else {
+    pT_tab_path = "tables/momentum/pT_table.dat";                   // pT table
+    phi_tab_path = "tables/momentum/phi_table.dat";                 // phi table
+    y_tab_path = "tables/momentum/y_table.dat";                     // y table (for 3+1d smooth CFF)
+    eta_tab_path = "tables/spacetime_rapidity/eta_table.dat";       // eta table (for 2+1d smooth CFF)
+  }
+  
+  Table pT_tab(pT_tab_path);                   // pT table
+  Table phi_tab(phi_tab_path);                 // phi table
+  Table y_tab(y_tab_path);                     // y table (for 3+1d smooth CFF)
+  Table eta_tab(eta_tab_path);                 // eta table (for 2+1d smooth CFF)
 
   printf("===================================================\n");
   // emission function class (continuous or sampled particle spectra)
