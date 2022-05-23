@@ -193,6 +193,7 @@ class FO_data_reader
         void read_surface_music(FO_surf* surf_ptr);         // 6
         void read_surface_hic_eventgen(FO_surf* surf_ptr);  // 7
         void read_surf_VH_MUSIC_3D(FO_surf* surf_ptr); // L. Du
+        void read_surface_BEShydro(FO_surf* surf_ptr); // L. Du
 };
 
 

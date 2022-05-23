@@ -220,8 +220,14 @@ void FO_data_reader::read_freezeout_surface(FO_surf* surf_ptr)
   {
     read_surface_hic_eventgen(surf_ptr);              // read 2+1d surface file from HIC-EventGen
   }
-  else if (mode == 8) 
+  else if (mode == 8)
+  {
     read_surf_VH_MUSIC_3D(surf_ptr);//3+1D surface from MUSIC. by L. Du.
+  }
+  else if (mode == 9)
+  {
+    read_surface_BEShydro(surf_ptr);//3+1D surface from BEShydro. by L. Du.
+  }
 }
 
 
@@ -426,8 +432,6 @@ void FO_data_reader::read_surface_cpu_vh(FO_surf* surf_ptr)
   thermal_average << setprecision(15) << T_avg << "\n" << E_avg << "\n" << P_avg << "\n" << muB_avg << "\n" << nB_avg;
   thermal_average.close();
 }
-
-
 
 
 void FO_data_reader::read_surface_music(FO_surf* surf_ptr)
@@ -851,6 +855,193 @@ void FO_data_reader::read_surf_VH_MUSIC_3D(FO_surf* surf_ptr)
   return;
 }
 
+
+// BEShydro, L. Du
+void FO_data_reader::read_surface_BEShydro(FO_surf* surf_ptr)
+{
+  printf("from input/surface.dat ...");
+
+  printf("\n\nHydrodynamic code = BEShydro\n\n");
+  printf("\thttps://github.com/LipeiDu/BEShydro\t(BEShydro)\n");
+
+  printf("Please check that input/surface.dat has the following format:\n\n\t");
+  printf("[t x y n ds_t ds_x ds_y ds_n u^t u^x u^y u^n E T P pi^tt p^tx pi^ty pi^tn pi^xx pi^xy pi^xn pi^yy pi^yn pi^nn Pi muB nB V^t V^x V^y V^n]\n\n");
+
+
+
+  ostringstream surfdat_stream;                       // prepare to read in surface.dat
+  surfdat_stream << "input/surface.dat";
+  ifstream surfdat(surfdat_stream.str().c_str());
+  double dummy;
+
+
+  double T_avg = 0;                                   // average thermodynamic variables across freezeout surface
+  double E_avg = 0;
+  double P_avg = 0;
+  double muB_avg = 0;
+  double nB_avg = 0;
+  double max_volume = 0;                              // max volume of freezeout surface
+
+
+  for(long i = 0; i < number_of_cells; i++)           // loop over freezeout cells
+  {
+    // contravariant spacetime position x^\mu
+    surfdat >> surf_ptr[i].tau;                       // \tau [fm]
+    surfdat >> surf_ptr[i].x;                         // x [fm]
+    surfdat >> surf_ptr[i].y;                         // y [fm]
+    surfdat >> surf_ptr[i].eta;                       // \eta_s [1]
+
+
+    // covariant surface normal vector d\sigma_\mu
+    surfdat >> surf_ptr[i].dat;                       // d\sigma_\tau [fm^-2]
+    surfdat >> surf_ptr[i].dax;                       // d\sigma_x [fm^-2]
+    surfdat >> surf_ptr[i].day;                       // d\sigma_y [fm^-2]
+    surfdat >> surf_ptr[i].dan;                       // d\sigma_\eta [fm^-1]
+
+
+    // contravariant fluid velocity u^\mu
+    surfdat >> dummy; //surf_ptr[i].ut;                        // u^t [1]
+    surfdat >> surf_ptr[i].ux;                        // u^x [1]
+    surfdat >> surf_ptr[i].uy;                        // u^y [1]
+    surfdat >> surf_ptr[i].un;                        // u^\eta [fm^-1]
+
+
+    // thermodynamic variables
+    surfdat >> dummy;                                 // energy density [fm^-4]
+    double E = dummy * hbarC;                         // convert to [GeV/fm^3]
+    surf_ptr[i].E = E;
+
+    surfdat >> dummy;                                 // temperature [fm^-1]
+    double T = dummy * hbarC;                         // convert to [GeV]
+    surf_ptr[i].T = T;
+
+    surfdat >> dummy;                                 // equilibrium pressure [fm^-4]
+    double P = dummy * hbarC;                         // convert to [GeV/fm^3]
+    surf_ptr[i].P = P;
+
+
+    // contravariant shear stress pi^\munu
+    surfdat >> dummy;
+    // double pitt = dummy * hbarC;
+    // surf_ptr[i].pitt = pitt;
+
+    surfdat >> dummy;
+    // double pitx = dummy * hbarC;
+    // surf_ptr[i].pitx = pitx;
+
+    surfdat >> dummy;
+    // double pity = dummy * hbarC;
+    // surf_ptr[i].pity = pity;
+
+    surfdat >> dummy;
+    // double pitn = dummy * hbarC;
+    // surf_ptr[i].pitn = pitn;
+
+    surfdat >> dummy;
+    double pixx = dummy * hbarC;
+    surf_ptr[i].pixx = pixx;
+
+    surfdat >> dummy;
+    double pixy = dummy * hbarC;
+    surf_ptr[i].pixy = pixy;
+
+    surfdat >> dummy;
+    double pixn = dummy * hbarC;
+    surf_ptr[i].pixn = pixn;
+
+    surfdat >> dummy;
+    double piyy = dummy * hbarC;
+    surf_ptr[i].piyy = piyy;
+
+    surfdat >> dummy;
+    double piyn = dummy * hbarC;
+    surf_ptr[i].piyn = piyn;
+
+    surfdat >> dummy;
+    // double pinn = dummy * hbarC;
+    // surf_ptr[i].pinn = pinn;
+
+    // bulk viscous pressure
+    surfdat >> dummy;                                 // Pi [fm^-4]
+    surf_ptr[i].bulkPi = dummy * hbarC;               // convert to [GeV/fm^3]
+
+
+    double muB = 0.;                                   // default value for net-baryon chemical potential
+    double nB = 0.;                                    // default value for net-baryon density
+
+    // net-baryon chemical potential and density
+    surfdat >> dummy;                               // muB [fm^-1]
+    muB = dummy * hbarC;                            // convert to [GeV]
+    surf_ptr[i].muB = muB;
+
+    surfdat >> nB;                                  // nB[fm^-3]
+    surf_ptr[i].nB = nB;
+
+    // contravariant baryon diffusion V^\mu
+    surfdat >> dummy; //surf_ptr[i].Vt;
+    surfdat >> surf_ptr[i].Vx;                      // V^x [fm^-3]
+    surfdat >> surf_ptr[i].Vy;                      // V^y [fm^-3]
+    surfdat >> surf_ptr[i].Vn;                      // V^\eta [fm^-4]
+
+
+    // check whether 2+1d freezeout cells are really boost-invariant
+    if(dimension == 2)
+    {
+      if(surf_ptr[i].eta != 0)
+      {
+      #ifdef FLAGS
+        printf("read_surface_BEShydro flag: setting spacetime rapidity of boost-invariant freezeout cell to eta = 0\n");
+      #endif
+
+        surf_ptr[i].eta = 0;
+      }
+      if(surf_ptr[i].dan != 0 || surf_ptr[i].un != 0 || surf_ptr[i].pixn != 0 || surf_ptr[i].piyn != 0)
+      {
+      #ifdef FLAGS
+        printf("read_surface_BEShydro flag: dimension = 2 but freezeout cell %ld is not boost-invariant (please check format in surface.dat)\n", i);
+      #endif
+      }
+    }
+
+
+    // compute the averaged thermodynamic quantities (for fast df coefficients)
+    double tau = surf_ptr[i].tau;
+    double tau2 = tau * tau;
+    double ux = surf_ptr[i].ux;
+    double uy = surf_ptr[i].uy;
+    double un = surf_ptr[i].un;
+    double ut = sqrt(1.  +  ux * ux  +  uy * uy  +  tau2 * un * un);
+    double dat = surf_ptr[i].dat;
+    double dax = surf_ptr[i].dax;
+    double day = surf_ptr[i].day;
+    double dan = surf_ptr[i].dan;
+
+    double uds = ut * dat  +  ux * dax  +  uy * day  +  un * dan;                 // u^\mu . d\sigma_\mu
+    double ds_ds = dat * dat  -  dax * dax  -  day * day  -  dan * dan / tau2;    // d\sigma^\mu . d\sigma_\mu
+    double ds_max = fabs(uds)  +  sqrt(fabs(uds * uds  -  ds_ds));                // max volume element |ds|
+
+    max_volume += ds_max;         // append values
+    E_avg += (E * ds_max);
+    T_avg += (T * ds_max);
+    P_avg += (P * ds_max);
+    muB_avg += (muB * ds_max);
+    nB_avg += (nB * ds_max);
+  }
+
+  surfdat.close();
+
+  T_avg /= max_volume;            // divide by total max volume
+  E_avg /= max_volume;
+  P_avg /= max_volume;
+  muB_avg /= max_volume;
+  nB_avg /= max_volume;
+
+
+  // write averaged thermodynamic variables to file (what happens if read from memory again?)
+  ofstream thermal_average("tables/thermodynamic/average_thermodynamic_quantities.dat", ios_base::out);
+  thermal_average << setprecision(15) << T_avg << "\n" << E_avg << "\n" << P_avg << "\n" << muB_avg << "\n" << nB_avg;
+  thermal_average.close();
+}
 
 
 void FO_data_reader::read_surface_hic_eventgen(FO_surf* surf_ptr)
