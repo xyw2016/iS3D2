@@ -260,7 +260,7 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
     dN_dy_count = (double**)calloc(number_of_chosen_particles, sizeof(double));
     dN_deta_count = (double**)calloc(number_of_chosen_particles, sizeof(double));
     dN_dphipdy_count = (double**)calloc(number_of_chosen_particles, sizeof(double));
-    dN_2pipTdpTdy_count = (double**)calloc(number_of_chosen_particles, sizeof(double));
+    dN_2pipTdpTdy_count = (double***)calloc(number_of_chosen_particles, sizeof(double));
 
     pT_count = (double**)calloc(number_of_chosen_particles, sizeof(double));
     vn_real_count = (double***)calloc(K_MAX, sizeof(double));
@@ -275,12 +275,18 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
       dN_dy_count[ipart] = (double*)calloc(Y_BINS, sizeof(double));
       dN_deta_count[ipart] = (double*)calloc(ETA_BINS, sizeof(double));
       dN_dphipdy_count[ipart] = (double*)calloc(PHIP_BINS, sizeof(double));
-      dN_2pipTdpTdy_count[ipart] = (double*)calloc(PT_BINS, sizeof(double));
       pT_count[ipart] = (double*)calloc(PT_BINS, sizeof(double));
 
       dN_taudtaudy_count[ipart] = (double*)calloc(TAU_BINS, sizeof(double));
       dN_twopirdrdy_count[ipart] = (double*)calloc(R_BINS, sizeof(double));
       dN_dphisdy_count[ipart] = (double*)calloc(PHIP_BINS, sizeof(double));
+
+      dN_2pipTdpTdy_count[ipart] = (double**)calloc(Y_BINS, sizeof(double));
+
+      for(int i = 0; i < Y_BINS; i++)
+      { 
+        dN_2pipTdpTdy_count[ipart][i] = (double*)calloc(PT_BINS, sizeof(double));
+      }
     }
 
     for(int k = 0; k < K_MAX; k++)
@@ -785,6 +791,9 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
     double pT_mid[PT_BINS];
     for(int ipT = 0; ipT < PT_BINS; ipT++) pT_mid[ipT] = PT_MIN  +  PT_WIDTH * ((double)ipT + 0.5);
 
+    double y_mid[Y_BINS];
+    for(int iy = 0; iy < Y_BINS; iy++) y_mid[iy] = -Y_CUT + Y_WIDTH * ((double)iy + 0.5);
+
     // write dN/2pipTdpTdy for each species
     for(int ipart = 0; ipart < number_of_chosen_particles; ipart++)
     {
@@ -792,15 +801,21 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
       sprintf(file, "results/sampled/dN_2pipTdpTdy/dN_2pipTdpTdy_%d_test.dat", MCID[ipart]);
       ofstream dN_2pipTdpTdy(file, ios_base::out);
 
-      for(int ipT = 0; ipT < PT_BINS; ipT++)
+      for(int iy = 0; iy < Y_BINS; iy++)
       {
-        dN_2pipTdpTdy << setprecision(6) << scientific << pT_mid[ipT] << "\t" << dN_2pipTdpTdy_count[ipart][ipT] / (two_pi * 2.0 * Y_CUT * PT_WIDTH * pT_mid[ipT] * (double)Nevents) << "\n";
+        for(int ipT = 0; ipT < PT_BINS; ipT++)
+        {
+          dN_2pipTdpTdy << setprecision(6) << scientific << y_mid[iy] << "\t" << setprecision(6) << scientific << pT_mid[ipT] << "\t" 
+          << dN_2pipTdpTdy_count[ipart][iy][ipT] / (two_pi * Y_WIDTH * PT_WIDTH * pT_mid[ipT] * (double)Nevents) 
+          << "\n";
+        }
       }
+
       dN_2pipTdpTdy.close();
 
     } // ipart
 
-    free_2D(dN_2pipTdpTdy_count, number_of_chosen_particles);
+    free_3D(dN_2pipTdpTdy_count, number_of_chosen_particles, Y_BINS);
   }
 
 
@@ -820,7 +835,8 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
 
       for(int iphip = 0; iphip < PHIP_BINS; iphip++)
       {
-        dN_dphipdy << setprecision(6) << scientific << phip_mid[iphip] << "\t" << dN_dphipdy_count[ipart][iphip] / (2.0 * Y_CUT * PHIP_WIDTH * (double)Nevents) << "\n";
+        dN_dphipdy << setprecision(6) << scientific << phip_mid[iphip] << "\t" << dN_dphipdy_count[ipart][iphip] / (2.0 * Y_CUT * PHIP_WIDTH * (double)Nevents) << "\n"; 
+        // note 2*y_cut is the total y range
       }
       dN_dphipdy.close();
 

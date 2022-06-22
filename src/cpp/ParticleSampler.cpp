@@ -1121,7 +1121,7 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy(double *Mass, double *Sign, do
               // bin the distributions (avoids memory bottleneck)
               sample_dN_dy(chosen_index, rapidity);
               sample_dN_deta(chosen_index, eta);
-              sample_dN_2pipTdpTdy(chosen_index, pLab.px, pLab.py);
+              sample_dN_2pipTdpTdy(chosen_index, rapidity, pLab.px, pLab.py);
               sample_dN_dphipdy(chosen_index, pLab.px, pLab.py);
               sample_vn(chosen_index, pLab.px, pLab.py);
               sample_dN_dX(chosen_index, tau, x, y);
@@ -1608,7 +1608,7 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy_famod(double *Mass, double *Si
           {
             sample_dN_dy(chosen_index, rapidity);                       // bin the distributions (avoids memory bottleneck)
             sample_dN_deta(chosen_index, eta);
-            sample_dN_2pipTdpTdy(chosen_index, pLab.px, pLab.py);
+            sample_dN_2pipTdpTdy(chosen_index, rapidity, pLab.px, pLab.py);
             sample_dN_dphipdy(chosen_index, pLab.px, pLab.py);
             sample_vn(chosen_index, pLab.px, pLab.py);
             sample_dN_dX(chosen_index, tau, x, y);

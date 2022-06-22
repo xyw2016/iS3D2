@@ -54,7 +54,7 @@ void EmissionFunctionArray::sample_dN_dphipdy(int chosen_index, double px, doubl
   }
 }
 
-void EmissionFunctionArray::sample_dN_2pipTdpTdy(int chosen_index, double px, double py)
+void EmissionFunctionArray::sample_dN_2pipTdpTdy(int chosen_index, double y, double px, double py)
 {
   // bin sampled dN/2pipTdpTdy
 
@@ -62,10 +62,14 @@ void EmissionFunctionArray::sample_dN_2pipTdpTdy(int chosen_index, double px, do
 
   // bin index
   int ipT = (int)floor((pT - PT_MIN) / PT_WIDTH);
+  int iy = (int)floor((y + Y_CUT) / Y_WIDTH);
 
-  if(ipT >= 0 && ipT < PT_BINS)
+  if(iy >= 0 && iy < Y_BINS)
   {
-    dN_2pipTdpTdy_count[chosen_index][ipT] += 1.0;
+    if(ipT >= 0 && ipT < PT_BINS)
+    {
+      dN_2pipTdpTdy_count[chosen_index][iy][ipT] += 1.0;
+    }
   }
 }
 

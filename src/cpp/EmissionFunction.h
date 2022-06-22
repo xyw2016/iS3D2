@@ -94,7 +94,7 @@ private:
 
   // for sampler test (2+1d)
   double **dN_dy_count;          // event-averaged momentum distributions
-  double **dN_2pipTdpTdy_count;
+  double ***dN_2pipTdpTdy_count;
   double **dN_dphipdy_count;
 
   double ***vn_real_count;      // event-averaged Vn's
@@ -183,7 +183,7 @@ public:
   void sample_dN_dy(int chosen_index, double y);
   void sample_dN_deta(int chosen_index, double eta);
   void sample_dN_dphipdy(int chosen_index, double px, double py);
-  void sample_dN_2pipTdpTdy(int chosen_index, double px, double py);
+  void sample_dN_2pipTdpTdy(int chosen_index, double y, double px, double py);
   void sample_vn(int chosen_index, double px, double py);
   void sample_dN_dX(int chosen_index, double tau, double x, double y);
 
