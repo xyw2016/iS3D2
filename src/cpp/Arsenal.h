@@ -30,5 +30,6 @@ void vector_subtraction(const double a[], const double b[], double c[], int n);	
 // free arrays
 void free_2D(double ** M, int n);
 void free_3D(double *** M, int n, int m);
+void free_4D(double **** M, int n, int m, int l);
 
 #endif

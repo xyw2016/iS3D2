@@ -16,6 +16,7 @@ set (SOURCES
     readindata.cpp
     SpacetimeDistribution.cpp
     Table.cpp
+    FileWriter.cpp
     )
 
 add_library(iS3D_lib SHARED ${SOURCES})

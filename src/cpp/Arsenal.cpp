@@ -230,5 +230,22 @@ void free_3D(double *** M, int n, int m)
   free(M);
 }
 
+void free_4D(double **** M, int n, int m, int l)
+{
+  for(int i = 0; i < n; i++)
+  {
+    for(int j = 0; j < m; j++)
+    {
+      for(int k = 0; k < l; k++)
+      {
+        free(M[i][j][k]);
+      }
+      free(M[i][j]);
+    }
+    free(M[i]);
+  }
+  free(M);
+}
+
 
 

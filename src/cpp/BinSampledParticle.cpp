@@ -33,7 +33,7 @@ void EmissionFunctionArray::sample_dN_deta(int chosen_index, double eta)
   }
 }
 
-void EmissionFunctionArray::sample_dN_dphipdy(int chosen_index, double px, double py)
+void EmissionFunctionArray::sample_dN_dphipdy(int chosen_index, double y, double px, double py)
 {
   // bin sampled dN/dphipdy
 
@@ -46,12 +46,17 @@ void EmissionFunctionArray::sample_dN_dphipdy(int chosen_index, double px, doubl
 
   // bin index
   int iphip = (int)floor(phip / PHIP_WIDTH);
+  int iy = (int)floor((y + Y_CUT) / Y_WIDTH);
 
   // add counts
-  if(iphip >= 0 && iphip < PHIP_BINS)
+  if(iy >= 0 && iy < Y_BINS)
   {
-    dN_dphipdy_count[chosen_index][iphip] += 1.0;
+    if(iphip >= 0 && iphip < PHIP_BINS)
+    {
+      dN_dphipdy_count[chosen_index][iy][iphip] += 1.0;
+    }
   }
+  
 }
 
 void EmissionFunctionArray::sample_dN_2pipTdpTdy(int chosen_index, double y, double px, double py)
@@ -73,7 +78,7 @@ void EmissionFunctionArray::sample_dN_2pipTdpTdy(int chosen_index, double y, dou
   }
 }
 
-void EmissionFunctionArray::sample_vn(int chosen_index, double px, double py)
+void EmissionFunctionArray::sample_vn(int chosen_index, double y, double px, double py)
 {
   // bin vn(pT)
 
@@ -87,17 +92,21 @@ void EmissionFunctionArray::sample_vn(int chosen_index, double px, double py)
 
   // pT bin index
   int ipT = (int)floor((pT - PT_MIN) / PT_WIDTH);
+  int iy = (int)floor((y + Y_CUT) / Y_WIDTH);
 
-  if(ipT >= 0 && ipT < PT_BINS)
+  if(iy >= 0 && iy < Y_BINS)
   {
-    // pT count
-    pT_count[chosen_index][ipT] += 1.0;
-
-    for(int k = 0; k < K_MAX; k++)
+    if(ipT >= 0 && ipT < PT_BINS)
     {
-      // Vn count
-      vn_real_count[k][chosen_index][ipT] += cos(((double)k + 1.0) * phi);
-      vn_imag_count[k][chosen_index][ipT] += sin(((double)k + 1.0) * phi);
+      // pT count
+      pT_count[chosen_index][ipT] += 1.0;
+
+      for(int k = 0; k < K_MAX; k++)
+      {
+        // Vn count
+        vn_real_count[k][chosen_index][iy][ipT] += cos(((double)k + 1.0) * phi);
+        vn_imag_count[k][chosen_index][iy][ipT] += sin(((double)k + 1.0) * phi);
+      }
     }
   }
 }
