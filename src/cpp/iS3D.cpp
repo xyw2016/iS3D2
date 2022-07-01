@@ -225,7 +225,7 @@ void IS3D::run_particlization(int fo_from_file)
 
   string chosen_particles_list;
 
-  if(operation == 1 && test_sampler == 1){
+  if(test_sampler == 1){
     chosen_particles_list = "PDG/chosen_particles_pikp.dat";      // if testing sampler and getting continuous distributions, just choose pi/k/p/pbar
   } else {
     chosen_particles_list = "PDG/chosen_particles.dat";

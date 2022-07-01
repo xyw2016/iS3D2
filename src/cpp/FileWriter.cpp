@@ -582,17 +582,18 @@ using namespace std;
 
         for(int ipT = 0; ipT < PT_BINS; ipT++)
         {
-          //vn << setprecision(6) << scientific << pT_mid[ipT];
+          vn << setprecision(6) << scientific << y_mid[iy] << "\t" << setprecision(6) << scientific << pT_mid[ipT] << "\t";
 
           for(int k = 0; k < K_MAX; k++)
           {
             double vn_abs = abs(vn_real_count[k][ipart][iy][ipT]  +  I * vn_imag_count[k][ipart][iy][ipT]) / pT_count[ipart][ipT];
             if(std::isnan(vn_abs) || std::isinf(vn_abs)) vn_abs = 0.0;
 
-            vn << setprecision(6) << scientific << pT_mid[ipT] << "\t"  << setprecision(6) << scientific << vn_abs;
+            vn << setprecision(6) << scientific << vn_abs << "\t";
           }
 
           vn << "\n";
+
         } // ipT
 
         vn << "\n";
