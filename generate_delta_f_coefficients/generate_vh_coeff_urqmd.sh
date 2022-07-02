@@ -11,7 +11,7 @@ echo "removing old UrQMD vh df coefficients and pdg.dat"
 rm -r urqmd
 rm pdg.dat
 
-echo "copying in new smash pdg.dat from /PDG"
+echo "copying in new urqmd pdg.dat from /PDG"
 #copy in new pdg file and rename it as pdg.dat
 cp ../../../PDG/pdg-urqmd_v3.3+.dat .
 mv pdg-urqmd_v3.3+.dat pdg.dat

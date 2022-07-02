@@ -1110,12 +1110,7 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy(double *Mass, double *Sign, do
             new_particle.z = tau * sinheta;
             new_particle.E = E;
             new_particle.pz = pz;
-
-            //CAREFUL push_back is not a thread-safe operation
-            //how should we modify for GPU version?
-            #pragma omp critical
-            particle_event_list[ievent].push_back(new_particle);
-
+            
             if(TEST_SAMPLER)
             {
               // bin the distributions (avoids memory bottleneck)
@@ -1125,6 +1120,11 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy(double *Mass, double *Sign, do
               sample_dN_dphipdy(chosen_index, rapidity, pLab.px, pLab.py);
               sample_vn(chosen_index, rapidity, pLab.px, pLab.py);
               sample_dN_dX(chosen_index, tau, x, y);
+            } else {
+              //CAREFUL push_back is not a thread-safe operation
+              //how should we modify for GPU version?
+              #pragma omp critical
+              particle_event_list[ievent].push_back(new_particle);
             }
           } // add sampled particle to event list
         } // sampled hadrons (n)
@@ -1599,11 +1599,6 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy_famod(double *Mass, double *Si
           new_particle.E = E;
           new_particle.pz = pz;
 
-          //CAREFUL push_back is not a thread-safe operation
-          //how should we modify for GPU version?
-          #pragma omp critical
-          particle_event_list[ievent].push_back(new_particle);        // append sampled particle to event list
-
           if(TEST_SAMPLER)
           {
             sample_dN_dy(chosen_index, rapidity);                       // bin the distributions (avoids memory bottleneck)
@@ -1612,6 +1607,11 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy_famod(double *Mass, double *Si
             sample_dN_dphipdy(chosen_index, rapidity, pLab.px, pLab.py);
             sample_vn(chosen_index, rapidity, pLab.px, pLab.py);
             sample_dN_dX(chosen_index, tau, x, y);
+          } else {
+            //CAREFUL push_back is not a thread-safe operation
+            //how should we modify for GPU version?
+            #pragma omp critical
+            particle_event_list[ievent].push_back(new_particle);        // append sampled particle to event list
           }
         } // keep sampled particle
       } // hadrons (n)
