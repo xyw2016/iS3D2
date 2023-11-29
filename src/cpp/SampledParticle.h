@@ -38,6 +38,7 @@ public:
   int chosen_index = 0;     // chosen particle index
   int mcID = 0;             // Monte-Carlo ID number
   double mass = 0;          // mass [GeV]
+  int charge = 0;
 
   double tau = 0;           // spacetime position of sampled particle
   double x = 0;

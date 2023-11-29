@@ -140,6 +140,8 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
     OPERATION = paraRdr->getVal("operation");
     MODE = paraRdr->getVal("mode");
 
+    AFTERBURNER_TYPE = paraRdr->getVal("afterburner_type");
+
 
     DIMENSION = paraRdr->getVal("dimension");
 
@@ -212,6 +214,9 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
     MAX_NUM_SAMPLES = paraRdr->getVal("max_num_samples");
     SAMPLER_SEED = paraRdr->getVal("sampler_seed");
 
+    FIX_OVERSAMPLE_NUM_FLAG = paraRdr->getVal("fix_oversample_num_flag");
+    OVERSAMPLE_NUM = paraRdr->getVal("oversample_num");
+    
     if(OPERATION == 2)
     {
       printf("Sampler seed set to %ld \n", SAMPLER_SEED);
@@ -437,6 +442,7 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
     double *Sign = (double*)calloc(number_of_chosen_particles, sizeof(double));
     double *Degeneracy = (double*)calloc(number_of_chosen_particles, sizeof(double));
     double *Baryon = (double*)calloc(number_of_chosen_particles, sizeof(double));
+    int *Charge = (int*)calloc(number_of_chosen_particles, sizeof(int));
     int *MCID = (int*)calloc(number_of_chosen_particles, sizeof(int));
 
     double *Equilibrium_Density = (double*)calloc(number_of_chosen_particles, sizeof(double));
@@ -451,6 +457,7 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
       Sign[ipart] = particles[chosen_index].sign;                 // quantum statistics sign
       Degeneracy[ipart] = particles[chosen_index].gspin;          // spin degeneracy factor
       Baryon[ipart] = particles[chosen_index].baryon;             // baryon number
+      Charge[ipart] = particles[chosen_index].charge;
       MCID[ipart] = particles[chosen_index].mc_id;                // Monte-Carlo ID
 
       Equilibrium_Density[ipart] = particles[chosen_index].equilibrium_density; // neq
@@ -680,10 +687,17 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
       {
         if(OVERSAMPLE)
         {
-          // estimate average particle yield
-          double Ntotal = calculate_total_yield(Equilibrium_Density, Bulk_Density, Diffusion_Density, T, P, E, tau, ux, uy, un, dat, dax, day, dan, pixx, pixy, pixn, piyy, piyn, bulkPi, muB, nB, Vx, Vy, Vn, df_data, gla);
 
-          Nevents = (long)min(ceil(MIN_NUM_HADRONS / Ntotal), MAX_NUM_SAMPLES);   // number of events to sample
+          if(FIX_OVERSAMPLE_NUM_FLAG == 0){
+            printf("Estimate the sampling event number...\n");
+            // estimate average particle yield
+            double Ntotal = calculate_total_yield(Equilibrium_Density, Bulk_Density, Diffusion_Density, T, P, E, tau, ux, uy, un, dat, dax, day, dan, pixx, pixy, pixn, piyy, piyn, bulkPi, muB, nB, Vx, Vy, Vn, df_data, gla);
+            Nevents = (long)min(ceil(MIN_NUM_HADRONS / Ntotal), MAX_NUM_SAMPLES);   // number of events to sample
+          }
+          else if(FIX_OVERSAMPLE_NUM_FLAG == 1){
+            printf("Specify the sampling event number...\n");
+            Nevents = OVERSAMPLE_NUM;
+          }
 
           printf("Sampling %ld particlization events...\n", Nevents);
         }
@@ -704,12 +718,12 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
           case 3:
           case 4:
           {
-            sample_dN_pTdpTdphidy(Mass, Sign, Degeneracy, Baryon, MCID, Equilibrium_Density, Bulk_Density, Diffusion_Density, T, P, E, tau, x, y, eta, ux, uy, un, dat, dax, day, dan, pixx, pixy, pixn, piyy, piyn, bulkPi, muB, nB, Vx, Vy, Vn, df_data, gla, legendre);
+            sample_dN_pTdpTdphidy(Mass, Sign, Degeneracy, Baryon, Charge, MCID, Equilibrium_Density, Bulk_Density, Diffusion_Density, T, P, E, tau, x, y, eta, ux, uy, un, dat, dax, day, dan, pixx, pixy, pixn, piyy, piyn, bulkPi, muB, nB, Vx, Vy, Vn, df_data, gla, legendre);
             break;
           }
           case 5:
           {
-            sample_dN_pTdpTdphidy_famod(Mass, Sign, Degeneracy, Baryon, MCID, T, P, E, tau, x, y, eta, ux, uy, un, dat, dax, day, dan, pixx, pixy, pixn, piyy, piyn, bulkPi, muB, nB, Vx, Vy, Vn, Nparticles, Mass_PDG, Sign_PDG, Degeneracy_PDG, Baryon_PDG);
+            sample_dN_pTdpTdphidy_famod(Mass, Sign, Degeneracy, Baryon, Charge, MCID, T, P, E, tau, x, y, eta, ux, uy, un, dat, dax, day, dan, pixx, pixy, pixn, piyy, piyn, bulkPi, muB, nB, Vx, Vy, Vn, Nparticles, Mass_PDG, Sign_PDG, Degeneracy_PDG, Baryon_PDG);
 
             break;
           }
@@ -723,7 +737,10 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
         printf("===================================================\n");
         printf("Writing results to files...\n\n");
 
-        write_particle_list_OSC();                      // write OSCAR particle list to file (if not using JETSCAPE)
+        if(AFTERBURNER_TYPE == 1)
+          write_particle_list_OSC_UrQMD();                      // write OSCAR particle list to file (if not using JETSCAPE)
+        else if(AFTERBURNER_TYPE == 2)
+          write_particle_list_OSC_SMASH();
         
         if(TEST_SAMPLER)
         {
@@ -761,6 +778,7 @@ EmissionFunctionArray::EmissionFunctionArray(ParameterReader* paraRdr_in, Table*
     free(Sign);
     free(Degeneracy);
     free(Baryon);
+    free(Charge);
     free(MCID);
 
     free(Equilibrium_Density);

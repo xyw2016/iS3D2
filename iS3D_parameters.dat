@@ -22,6 +22,9 @@ hrg_eos = 1						# determines what PDG file to read in (chosen particles must be
 								# 	2 = smash 			(goes up to Υ(3S))
 								# 	3 = smash box		(smash box: no decay info now, so can't do resdecays)	(what is this?)
 
+afterburner_type = 2            #   1 = urqmd
+								#   2 = smash								
+
 dimension = 3					# dimensionality of the freezeout surface
 								#	2 = boost-invariant 2+1d
 								#	3 = non boost-invariant 3+1d
@@ -63,6 +66,9 @@ y_cut = 5.0						# rapidity cut: |y| <= y_cut
 
 min_num_hadrons = 1.0e+7		# across all samples >= min_num_hadrons
 max_num_samples	= 1.0e+3   		# oversampling will finish after this number of samples
+
+fix_oversample_num_flag = 1     # switch to specify the number of samples (SMASH needs to know Nevents)
+oversample_num =  1.0e+3   		# oversampling will finish after this number of samples
 
 sampler_seed = 1 				# sets seed of particle sampler. If sampler_seed < 0, seed is set using clocktime
 

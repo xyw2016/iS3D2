@@ -635,7 +635,7 @@ double EmissionFunctionArray::calculate_total_yield(double * Equilibrium_Density
     return Ntot;
   }
 
-void EmissionFunctionArray::sample_dN_pTdpTdphidy(double *Mass, double *Sign, double *Degeneracy, double *Baryon, int *MCID, double *Equilibrium_Density, double *Bulk_Density, double *Diffusion_Density, double *T_fo, double *P_fo, double *E_fo, double *tau_fo, double *x_fo, double *y_fo, double *eta_fo, double *ux_fo, double *uy_fo, double *un_fo, double *dat_fo, double *dax_fo, double *day_fo, double *dan_fo, double *pixx_fo, double *pixy_fo, double *pixn_fo, double *piyy_fo, double *piyn_fo, double *bulkPi_fo, double *muB_fo, double *nB_fo, double *Vx_fo, double *Vy_fo, double *Vn_fo, Deltaf_Data *df_data, Gauss_Laguerre * laguerre, Gauss_Legendre * legendre)
+void EmissionFunctionArray::sample_dN_pTdpTdphidy(double *Mass, double *Sign, double *Degeneracy, double *Baryon, int *Charge, int *MCID, double *Equilibrium_Density, double *Bulk_Density, double *Diffusion_Density, double *T_fo, double *P_fo, double *E_fo, double *tau_fo, double *x_fo, double *y_fo, double *eta_fo, double *ux_fo, double *uy_fo, double *un_fo, double *dat_fo, double *dax_fo, double *day_fo, double *dan_fo, double *pixx_fo, double *pixy_fo, double *pixn_fo, double *piyy_fo, double *piyn_fo, double *bulkPi_fo, double *muB_fo, double *nB_fo, double *Vx_fo, double *Vy_fo, double *Vn_fo, Deltaf_Data *df_data, Gauss_Laguerre * laguerre, Gauss_Legendre * legendre)
   {
     int npart = number_of_chosen_particles;
 
@@ -936,6 +936,7 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy(double *Mass, double *Sign, do
           double mass_squared = mass * mass;
           double sign = Sign[chosen_index];                   // quantum statistics sign
           double baryon = Baryon[chosen_index];               // baryon number
+          int charge = Charge[chosen_index];
           double chem = baryon * alphaB;
           double chem_mod = baryon * alphaB_mod;
           int mcid = MCID[chosen_index];                      // mc_id
@@ -1073,6 +1074,7 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy(double *Mass, double *Sign, do
             new_particle.x = x;
             new_particle.y = y;
             new_particle.mass = mass;
+            new_particle.charge = charge;
             new_particle.px = pLab.px;
             new_particle.py = pLab.py;
 
@@ -1135,7 +1137,7 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy(double *Mass, double *Sign, do
 
 
 
-void EmissionFunctionArray::sample_dN_pTdpTdphidy_famod(double *Mass, double *Sign, double *Degeneracy, double *Baryon, int *MCID, double *T_fo, double *P_fo, double *E_fo, double *tau_fo, double *x_fo, double *y_fo, double *eta_fo, double *ux_fo, double *uy_fo, double *un_fo, double *dat_fo, double *dax_fo, double *day_fo, double *dan_fo, double *pixx_fo, double *pixy_fo, double *pixn_fo, double *piyy_fo, double *piyn_fo, double *bulkPi_fo, double *muB_fo, double *nB_fo, double *Vx_fo, double *Vy_fo, double *Vn_fo, int Nparticles, double *Mass_PDG, double *Sign_PDG, double *Degeneracy_PDG, double *Baryon_PDG)
+void EmissionFunctionArray::sample_dN_pTdpTdphidy_famod(double *Mass, double *Sign, double *Degeneracy, double *Baryon, int *Charge, int *MCID, double *T_fo, double *P_fo, double *E_fo, double *tau_fo, double *x_fo, double *y_fo, double *eta_fo, double *ux_fo, double *uy_fo, double *un_fo, double *dat_fo, double *dax_fo, double *day_fo, double *dan_fo, double *pixx_fo, double *pixy_fo, double *pixn_fo, double *piyy_fo, double *piyn_fo, double *bulkPi_fo, double *muB_fo, double *nB_fo, double *Vx_fo, double *Vy_fo, double *Vn_fo, int Nparticles, double *Mass_PDG, double *Sign_PDG, double *Degeneracy_PDG, double *Baryon_PDG)
 {
   int npart = number_of_chosen_particles;
 
@@ -1527,6 +1529,7 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy_famod(double *Mass, double *Si
 
         double sign = Sign[chosen_index];                   // quantum statistics sign
         double baryon = Baryon[chosen_index];               // baryon number
+        int charge = Charge[chosen_index];
         double chem = baryon * upsilonB;                    // chemical potential term
 
         int mcid = MCID[chosen_index];                      // mc_id
@@ -1561,6 +1564,7 @@ void EmissionFunctionArray::sample_dN_pTdpTdphidy_famod(double *Mass, double *Si
           new_particle.x = x;
           new_particle.y = y;
           new_particle.mass = mass;
+          new_particle.charge = charge;
           new_particle.px = pLab.px;
           new_particle.py = pLab.py;
 

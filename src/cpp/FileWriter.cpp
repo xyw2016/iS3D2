@@ -351,10 +351,10 @@ using namespace std;
   }
 
 
-  //write particle list in oscar format for UrQMD/SMASH afterburner
-  void EmissionFunctionArray::write_particle_list_OSC()
+  //write particle list in oscar format for UrQMD afterburner
+  void EmissionFunctionArray::write_particle_list_OSC_UrQMD()
   {
-    printf("Writing sampled particles list to OSCAR File...\n");
+    printf("Writing sampled particles list to UrQMD OSCAR File...\n");
 
     char filename[255] = "";
     sprintf(filename, "results/particle_list_osc.dat");
@@ -409,6 +409,57 @@ using namespace std;
           spectraFile << line_buffer << endl;
         }//ipart
       }
+    } // ievent
+
+    spectraFile.close();
+  }
+
+
+  //write particle list in oscar format for SMASH afterburner
+  void EmissionFunctionArray::write_particle_list_OSC_SMASH()
+  {
+    printf("Writing sampled particles list to SMASH OSCAR File...\n");
+
+    char filename[255] = "";
+    sprintf(filename, "results/particle_list_osc.dat");
+    ofstream spectraFile(filename, ios_base::out);
+
+    char line_buffer[500];
+
+    //write the header
+    spectraFile << "#!OSCAR2013 particle_lists t x y z mass p0 px py pz pdg ID charge" << "\n";
+    spectraFile << "# Units: fm fm fm fm GeV GeV GeV GeV GeV none none none" << "\n";
+    
+    for(int ievent = 0; ievent < Nevents; ievent++)
+    {
+      
+      int num_particles = particle_event_list[ievent].size();
+
+      spectraFile << "# event" << setw(10) << ievent+1 << "  out" 
+                    << setw(10) << Nevents << endl;
+      for (int ipart = 0; ipart < num_particles; ipart++)
+      {
+        int mcid = particle_event_list[ievent][ipart].mcID;
+        int charge = particle_event_list[ievent][ipart].charge;
+        double x = particle_event_list[ievent][ipart].x;
+        double y = particle_event_list[ievent][ipart].y;
+        double t = particle_event_list[ievent][ipart].t;
+        double z = particle_event_list[ievent][ipart].z;
+
+        double m  = particle_event_list[ievent][ipart].mass;
+        double E  = particle_event_list[ievent][ipart].E;
+        double px = particle_event_list[ievent][ipart].px;
+        double py = particle_event_list[ievent][ipart].py;
+        double pz = particle_event_list[ievent][ipart].pz;
+
+        sprintf(line_buffer, "%24.16e  %24.16e  %24.16e  %24.16e  %24.16e  %24.16e  %24.16e  %24.16e  %24.16e", t, x, y, z, m, E, px, py, pz);
+        spectraFile << line_buffer << "  ";
+        spectraFile << setw(10) << mcid << "  " << setw(10) << ipart << "  " << setw(10) << charge << endl;
+
+      }//ipart
+
+      spectraFile << "# event" << setw(10) << ievent+1 << "  end 0 impact   0.000" << endl;
+
     } // ievent
 
     spectraFile.close();
