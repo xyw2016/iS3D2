@@ -88,6 +88,8 @@ void IS3D::run_particlization(int fo_from_file)
   int include_baryon = paraRdr->getVal("include_baryon");
   int operation = paraRdr->getVal("operation");
   int test_sampler = paraRdr->getVal("test_sampler");
+  int afterburner_type = paraRdr->getVal("afterburner_type");
+  int hrg_eos = paraRdr->getVal("hrg_eos");
 
 #ifdef PRINT_PARAMETERS
   paraRdr->echo();
@@ -228,7 +230,12 @@ void IS3D::run_particlization(int fo_from_file)
   if(test_sampler == 1){
     chosen_particles_list = "PDG/chosen_particles_pikp.dat";      // if testing sampler and getting continuous distributions, just choose pi/k/p/pbar
   } else {
-    chosen_particles_list = "PDG/chosen_particles.dat";
+    if(hrg_eos == 1)
+      chosen_particles_list = "PDG/chosen_particles_urqmd_v3.3+.dat";
+    else if(hrg_eos == 2)
+      chosen_particles_list = "PDG/chosen_particles_smash.dat";
+    else if(hrg_eos == 3)
+      chosen_particles_list = "PDG/chosen_particles_box.dat";
   }
 
   Table chosen_particles(chosen_particles_list);             // chosen particles table
